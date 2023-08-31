@@ -4,23 +4,23 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace LoopNetTests
 {
     [TestClass]
-    public class NoApiKeyEndpoints
+    public class OpenEndpoints
     {
         [TestMethod]
-        [Description("Get markets test")]
+        [Description("Get markets")]
         public async Task GetMarkets()
         {
             var loopringClient = new LoopringClient();
-            var markets = await loopringClient.GetMarkets();
+            var markets = await loopringClient.GetMarketsAsync();
             Assert.IsNotNull(markets);
         }
 
         [TestMethod]
-        [Description("Get ticker")]
+        [Description("Get tickers")]
         public async Task GetTickers()
         {
             var loopringClient = new LoopringClient();
-            var tickers = await loopringClient.GetTickers("LRC-ETH");
+            var tickers = await loopringClient.GetTickersAsync("LRC-ETH");
             Assert.IsNotNull(tickers);
         }
     }

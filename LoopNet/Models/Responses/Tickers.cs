@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace LoopNet.Models
+namespace LoopNet.Models.Responses
 {
     public class Tickers
     {
