@@ -21,7 +21,7 @@ namespace LoopNetTests
         }
 
         [TestMethod]
-        [Description("Get markets test")]
+        [Description("Get api key")]
         public async Task GetApiKey()
         {
             var l1PrivateKey = Configuration!["Loopring:L1PrivateKey"];
@@ -44,7 +44,7 @@ namespace LoopNetTests
             var xApiSig = eddsa.Sign();
             var apiKey = await loopringClient.GetApiKeyAsync(xApiSig, accountId);
 
-            Assert.IsNotNull(apiKey.apiKey);
+            Assert.IsNotNull(apiKey?.apiKey);
         }
     }
 }

@@ -67,7 +67,7 @@ namespace LoopNet.Services
 
         public async Task<ApiKey?> GetApiKeyAsync(string xApiSig, int accountId)
         {
-            var request = new RestRequest("api/v3/account");
+            var request = new RestRequest("api/v3/apiKey");
             request.AddHeader("x-api-sig", xApiSig);
             request.AddParameter("accountId", accountId);
 
