@@ -12,7 +12,7 @@ namespace LoopNetTests
         {
             var loopringClient = new LoopringClient();
             var markets = await loopringClient.GetMarketsAsync();
-            Assert.IsNotNull(markets);
+            Assert.IsNotNull(markets, "Could not get markets!");
         }
 
         [TestMethod]
@@ -21,7 +21,7 @@ namespace LoopNetTests
         {
             var loopringClient = new LoopringClient();
             var tickers = await loopringClient.GetTickersAsync("LRC-ETH");
-            Assert.IsNotNull(tickers);
+            Assert.IsNotNull(tickers, "Could not get tickers!");
         }
     }
 }

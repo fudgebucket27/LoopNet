@@ -4,7 +4,7 @@ using LoopNet.Models.Responses;
 
 namespace LoopNet.Services
 {
-    public class LoopringClient
+    public class LoopringClient : ILoopringClient
     {
         readonly RestClient _client;
 
@@ -18,13 +18,13 @@ namespace LoopNet.Services
             GC.SuppressFinalize(this);
         }
 
-        public async Task<Tickers?> GetTickersAsync(string pairs)
+        public async Task<TickersResponse?> GetTickersAsync(string pairs)
         {
             var request = new RestRequest("api/v3/ticker");
             request.AddParameter("market", pairs);
             try
             {
-                var response = await _client.GetAsync<Tickers>(request);
+                var response = await _client.GetAsync<TickersResponse>(request);
                 return response;
             }
             catch (Exception ex)
@@ -34,12 +34,12 @@ namespace LoopNet.Services
             }
         }
 
-        public async Task<Markets?> GetMarketsAsync()
+        public async Task<MarketsResponse?> GetMarketsAsync()
         {
             var request = new RestRequest("api/v3/exchange/markets");
             try
             {
-                var response = await _client.GetAsync<Markets>(request);
+                var response = await _client.GetAsync<MarketsResponse>(request);
                 return response;
             }
             catch(Exception ex) 
@@ -49,13 +49,13 @@ namespace LoopNet.Services
             }    
         }
 
-        public async Task<AccountInformation?> GetAccountInformationAsync(string owner)
+        public async Task<AccountInformationResponse?> GetAccountInformationAsync(string owner)
         {
             var request = new RestRequest("api/v3/account");
             request.AddParameter("owner", owner);
             try
             {
-                var response = await _client.GetAsync<AccountInformation>(request);
+                var response = await _client.GetAsync<AccountInformationResponse>(request);
                 return response;
             }
             catch (Exception ex)
@@ -65,7 +65,7 @@ namespace LoopNet.Services
             }
         }
 
-        public async Task<ApiKey?> GetApiKeyAsync(string xApiSig, int accountId)
+        public async Task<ApiKeyResponse?> GetApiKeyAsync(string xApiSig, int accountId)
         {
             var request = new RestRequest("api/v3/apiKey");
             request.AddHeader("x-api-sig", xApiSig);
@@ -73,7 +73,7 @@ namespace LoopNet.Services
 
             try
             {
-                var response = await _client.GetAsync<ApiKey>(request);
+                var response = await _client.GetAsync<ApiKeyResponse>(request);
                 return response;
             }
             catch (Exception ex)

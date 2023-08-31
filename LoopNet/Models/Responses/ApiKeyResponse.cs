@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,8 +7,9 @@ using System.Threading.Tasks;
 
 namespace LoopNet.Models.Responses
 {
-    public class Tickers
+    public class ApiKeyResponse
     {
-        public List<List<string>>? tickers { get; set; }
+        [JsonProperty("apiKey")]
+        public string? ApiKey { get; set; }
     }
 }
