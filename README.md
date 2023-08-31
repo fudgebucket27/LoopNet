@@ -15,9 +15,9 @@ LoopNetConsole is a console application that you can use to play around with the
 ### LoopNetTests
 LoopNetTests contains all of the tests. See [here](https://github.com/fudgebucket27/LoopNet/edit/master/README.md#running-the-tests) for setup.
 
-## Running the tests
+## Running LoopNetConsole/LoopNetTests
 ### Setup secrets.json
-You must create a JSON file called 'secrets.json' in the root of the LoopNetTests project. It should look like the following:
+You must create a JSON file called 'secrets.json' in the root of the LoopNetTests and the LoopNetConsole projects. It should look like the following:
 
 ```json
 {
