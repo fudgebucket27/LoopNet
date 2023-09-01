@@ -12,6 +12,6 @@ namespace LoopNet.Services
         Task<TickersResponse?> GetTickersAsync(string pairs);
         Task<MarketsResponse?> GetMarketsAsync();
         Task<AccountInformationResponse?> GetAccountInformationAsync(string owner);
-        Task<ApiKeyResponse?> GetApiKeyAsync(string xApiSig, int accountId);
+        Task GetApiKeyAsync();
     }
 }
