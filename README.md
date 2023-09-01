@@ -1,6 +1,14 @@
 # LoopNet
 This is the Unofficial Loopring SDK in C# .NET 7
 
+## Adding to your project
+### Installation
+You can get LoopNet from nuget. You can run the following command while in Visual Studio to install it into your project
+
+```bash
+Install-Package LoopNet
+```
+
 ## Building from source
 ### Setup
 Download Visual Studio 2022 with .NET 7 and open the solution file
