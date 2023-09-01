@@ -14,7 +14,7 @@ Install-Package LoopNet
 Create the client as follows. How you retrieve the details for the L1 Private Key and Eth Address is up to you. Be it from a file, environment variable and etc. As long as the final form is a string.
 
 ```csharp
-var loopNetClient = await LoopNetClient.CreateLoopringClientAsync("L1 Private Key", "Eth Address in 0x format");
+var loopNetClient = await LoopNetClient.CreateLoopNetClientAsync("L1 Private Key", "Eth Address in 0x format");
 ```
 On client creation, it will generate your Loopring Layer 2 Private Key and retrieve your Loopring API Key
 
