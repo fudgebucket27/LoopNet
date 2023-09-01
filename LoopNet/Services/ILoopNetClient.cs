@@ -12,7 +12,6 @@ namespace LoopNet.Services
         Task<TickersResponse?> GetTickersAsync(string pairs);
         Task<MarketsResponse?> GetMarketsAsync();
         Task<AccountInformationResponse?> GetAccountInformationAsync(string owner);
-        Task GetApiKeyAsync();
         Task<StorageIdResponse?> GetStorageIdAsync(int sellTokenId);
         Task<OffchainFeeResponse?> GetOffchainFeeAsync(int requestType, string feeToken, string amount);
         Task<TransferTokenResponse> PostTokenTransferAsync(string toAddress, string transferTokenSymbol, decimal tokenAmount, string feeTokenSymbol, string memo, bool payAccountActivationFee);

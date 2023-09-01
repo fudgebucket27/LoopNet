@@ -31,6 +31,13 @@ namespace LoopNet.Services
             _ethAddress = ethAddress;
         }
 
+        /// <summary>
+        /// Creates an instance of the LoopNet client.
+        /// </summary>
+        /// <param name="l1PrivateKey">The L1 Private Key</param>
+        /// <param name="ethAddress">The Eth address associated with the L1 Private Key in Ox format</param>
+        /// <param name="showConnectionInfo">Indicates whether to display the connection info. Optional, defaults to false.</param>
+        /// <returns>A LoopNetClient</returns>
         public static async Task<LoopNetClient> CreateLoopNetClientAsync(string l1PrivateKey, string ethAddress, bool showConnectionInfo = false)
         {
             var instance = new LoopNetClient(l1PrivateKey, ethAddress);
@@ -48,6 +55,12 @@ namespace LoopNet.Services
             GC.SuppressFinalize(this);
         }
 
+        /// <summary>
+        /// Gets tickers.
+        /// </summary>
+        /// <param name="pairs">A comma seperated list of pairs, ie: LRC-ETH,LRC-WBTC</param>
+        /// <returns>The tickers</returns>
+        /// <exception cref="Exception">Thrown when there is an issue with the Loopring API, most likey one of the pairs do not exist</exception>
         public async Task<TickersResponse?> GetTickersAsync(string pairs)
         {
             var request = new RestRequest("api/v3/ticker");
@@ -63,6 +76,11 @@ namespace LoopNet.Services
             }
         }
 
+        /// <summary>
+        /// Gets the markets
+        /// </summary>
+        /// <returns>The markets</returns>
+        /// <exception cref="Exception">Thrown when there is an issue with the Loopring API</exception>
         public async Task<MarketsResponse?> GetMarketsAsync()
         {
             var request = new RestRequest("api/v3/exchange/markets");
@@ -77,6 +95,12 @@ namespace LoopNet.Services
             }
         }
 
+        /// <summary>
+        /// Gets account information
+        /// </summary>
+        /// <param name="owner">The address to retireve account information from</param>
+        /// <returns>The account information</returns>
+        /// <exception cref="Exception">Thrown when there is an issue with the Loopring API, most likey the address does not exist on Loopring</exception>
         public async Task<AccountInformationResponse?> GetAccountInformationAsync(string owner)
         {
             var request = new RestRequest("api/v3/account");
@@ -92,7 +116,11 @@ namespace LoopNet.Services
             }
         }
 
-        public async Task GetApiKeyAsync()
+        /// <summary>
+        /// Gets the api key and sets it in the LoopNet client
+        /// </summary>
+        /// <exception cref="Exception">Thrown when there is an issue with the Loopring API, could be an issue with the L1 Private Key and Address being used</exception>
+        private protected async Task GetApiKeyAsync()
         {
             //Getting the account information
             _accountInformation = await GetAccountInformationAsync(_ethAddress!);
@@ -131,6 +159,12 @@ namespace LoopNet.Services
             }
         }
 
+        /// <summary>
+        /// Gets storage id
+        /// </summary>
+        /// <param name="sellTokenId">The sell token id</param>
+        /// <returns>The storage id</returns>
+        /// <exception cref="Exception">Thrown when there is an issue with the Loopring API, most likey the sellTokenId does not exist</exception>
         public async Task<StorageIdResponse?> GetStorageIdAsync(int sellTokenId)
         {
             var request = new RestRequest("api/v3/storageId");
@@ -148,6 +182,14 @@ namespace LoopNet.Services
             }
         }
 
+        /// <summary>
+        /// Gets offchain fee
+        /// </summary>
+        /// <param name="requestType">The request type</param>
+        /// <param name="feeToken">The fee token, ie LRC</param>
+        /// <param name="amount">The amount</param>
+        /// <returns>The offchain fee</returns>
+        /// <exception cref="Exception">Thrown when there is an issue with the Loopring API, most likey the fee token or request type doest not exist</exception>
         public async Task<OffchainFeeResponse?> GetOffchainFeeAsync(int requestType, string feeToken, string amount)
         {
             var request = new RestRequest("api/v3/user/offchainFee");
@@ -167,6 +209,17 @@ namespace LoopNet.Services
             }
         }
 
+        /// <summary>
+        /// Transfers a token to an address
+        /// </summary>
+        /// <param name="toAddress">The address to transfer the token to</param>
+        /// <param name="transferTokenSymbol">The token symbol to transfer, ie ETH</param>
+        /// <param name="tokenAmount">The amount of the transfer token to sell in decimal, ie 0.1m</param>
+        /// <param name="feeTokenSymbol">The token symbol to pay fees in, ie LRC</param>
+        /// <param name="memo">The memo to send,</param>
+        /// <param name="payAccountActivationFee">Whether you want to pay the toAddress account activation fee. Optional, Defaults to false</param>
+        /// <returns>The transfer token reponnse</returns>
+        /// <exception cref="Exception">Thrown when there is an issue with the Loopring API, could be due to a number of issues such as storageId, offchainFee or not having enough balance of the transfer token</exception>
         public async Task<TransferTokenResponse> PostTokenTransferAsync(string toAddress, string transferTokenSymbol, decimal tokenAmount, string feeTokenSymbol,  string memo, bool payAccountActivationFee = false)
         {
             int feeTokenId = 0; //Default to 0 for ETH, 1 is LRC

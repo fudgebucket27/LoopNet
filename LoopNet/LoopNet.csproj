@@ -10,19 +10,10 @@
     <PackageProjectUrl>https://github.com/fudgebucket27/LoopNet</PackageProjectUrl>
     <RepositoryUrl>https://github.com/fudgebucket27/LoopNet</RepositoryUrl>
     <PackageTags>loopring; loopring sdk;</PackageTags>
-    <PackageReleaseNotes>Initial Release. 
-
-Methods added in client:
-- Tickers
-- Markets
-- Account Information
-- Api Key
-- Storage id
-- Offchain fee
-- Token Transfer</PackageReleaseNotes>
+    <PackageReleaseNotes>Renamed loopnet client create method.</PackageReleaseNotes>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <AssemblyVersion></AssemblyVersion>
-    <Version>0.0.1</Version>
+    <Version>0.0.2</Version>
   </PropertyGroup>
 
   <ItemGroup>
