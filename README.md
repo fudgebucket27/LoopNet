@@ -37,3 +37,5 @@ You must create a JSON file called 'secrets.json' in the root of the LoopNetTest
 ```
 
 Do not share your L1 Private Key with anyone!!!
+
+Your address should be in 0x format, for example: 0x36Cd6b3b9329c04df55d55D41C257a5fdD387ACd
