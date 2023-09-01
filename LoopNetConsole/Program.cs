@@ -33,12 +33,6 @@ if (string.IsNullOrEmpty(ethAddress))
 }
 #endregion
 
-
 var loopNetClient = await LoopNetClient.CreateLoopringClientAsync(l1PrivateKey, ethAddress);
-var tokenTransferResponse = await loopNetClient.PostTokenTransferAsync("0x991B6fE54d46e5e0CEEd38911cD4a8694bed386A", "LRC", 0.01m, "ETH", "LoopNet test");
-Console.WriteLine(tokenTransferResponse);
-//var markets = await loopNetClient.GetMarketsAsync();
-//var tickers = await loopNetClient.GetTickersAsync("LRC-ETH");
-
-Console.ReadKey();
-Console.WriteLine("Press any key to exit!");
+var tokenTransferResponse = await loopNetClient.PostTokenTransferAsync("0x991B6fE54d46e5e0CEEd38911cD4a8694bed386A", "LRC", 0.01m, "LRC", "LoopNet test"); //You probably want to comment this out or change the address to transfer to.....
+Console.WriteLine(tokenTransferResponse != null ? "Token Transfer successful!" : "Token transfer unsuccessful!");

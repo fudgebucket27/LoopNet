@@ -15,6 +15,6 @@ namespace LoopNet.Services
         Task GetApiKeyAsync();
         Task<StorageIdResponse?> GetStorageIdAsync(int sellTokenId);
         Task<OffchainFeeResponse?> GetOffchainFeeAsync(int requestType, string feeToken, string amount);
-        Task<string> PostTokenTransferAsync(string toAddress, string transferTokenSymbol, decimal tokenAmount, string feeTokenSymbol, string memo);
+        Task<TransferTokenResponse> PostTokenTransferAsync(string toAddress, string transferTokenSymbol, decimal tokenAmount, string feeTokenSymbol, string memo);
     }
 }

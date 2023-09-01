@@ -15,7 +15,7 @@ using Nethereum.Util;
 
 namespace LoopNet.Services
 {
-    public class LoopNetClient : ILoopNetClient
+    public class LoopNetClient : ILoopNetClient, IDisposable
     {
         private protected readonly RestClient _loopNetClient;
         private protected string? _l1PrivateKey;
@@ -103,12 +103,12 @@ namespace LoopNet.Services
 
             var signer = new EthereumMessageSigner();
             var signedMessageECDSA = signer.EncodeUTF8AndSign(messageToSign, new EthECKey(_l1PrivateKey));
-            var l2KeyDetails = LoopringL2KeyGenerator.GenerateL2KeyDetails(signedMessageECDSA, _ethAddress, skipPublicKeyCalculation);
+            var (secretKey, ethAddress, publicKeyX, publicKeyY) = LoopringL2KeyGenerator.GenerateL2KeyDetails(signedMessageECDSA, _ethAddress, skipPublicKeyCalculation);
 
             //Generating the x-api-sig header details for the get loopring api key endpoint
-            string apiSignatureBase = "GET&https%3A%2F%2Fapi3.loopring.io%2Fapi%2Fv3%2FapiKey&accountId%3D" + accountId;
-            BigInteger apiSignatureBaseBigInteger = SHA256Helper.CalculateSHA256HashNumber(apiSignatureBase);
-            Eddsa eddsa = new Eddsa(apiSignatureBaseBigInteger, l2KeyDetails.secretKey);
+            var apiSignatureBase = "GET&https%3A%2F%2Fapi3.loopring.io%2Fapi%2Fv3%2FapiKey&accountId%3D" + accountId;
+            var apiSignatureBaseBigInteger = SHA256Helper.CalculateSHA256HashNumber(apiSignatureBase);
+            var eddsa = new Eddsa(apiSignatureBaseBigInteger, secretKey);
             var xApiSig = eddsa.Sign();
 
             var request = new RestRequest("api/v3/apiKey");
@@ -117,7 +117,7 @@ namespace LoopNet.Services
             var response = await _loopNetClient.ExecuteGetAsync<ApiKeyResponse>(request);
             if (response.IsSuccessful)
             {
-                _l2PrivateKey = l2KeyDetails.secretKey;
+                _l2PrivateKey = secretKey;
                 _apiKey = response.Data!.ApiKey;
                 _loopNetClient.AddDefaultHeader("X-API-KEY", _apiKey!);
             }
@@ -163,7 +163,7 @@ namespace LoopNet.Services
             }
         }
 
-        public async Task<string> PostTokenTransferAsync(string toAddress, string transferTokenSymbol, decimal tokenAmount, string feeTokenSymbol,  string memo)
+        public async Task<TransferTokenResponse> PostTokenTransferAsync(string toAddress, string transferTokenSymbol, decimal tokenAmount, string feeTokenSymbol,  string memo)
         {
             int feeTokenId = 0; //Default to 0 for ETH, 1 is LRC
             int transferTokenId = 0; //Default to 0 for ETH, 1 is LRC
@@ -235,7 +235,7 @@ namespace LoopNet.Services
 
             //Calculate ecdsa
             string primaryTypeNameTransfer = "Transfer";
-            TypedData eip712TypedDataTransfer = new TypedData()
+            var eip712TypedDataTransfer = new TypedData()
             {
                 Domain = new Domain()
                 {
@@ -305,7 +305,7 @@ namespace LoopNet.Services
             request.AddParameter("eddsaSignature", eddsaSignature);
             request.AddParameter("ecdsaSignature", ecdsaSignature);
             request.AddParameter("memo", memo);
-            var response = await _loopNetClient.ExecutePostAsync<string>(request);
+            var response = await _loopNetClient.ExecutePostAsync<TransferTokenResponse>(request);
             if (response.IsSuccessful)
             {
                 return response.Data!;
