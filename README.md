@@ -10,7 +10,7 @@ Download Visual Studio 2022 with .NET 7 and open the solution file
 LoopNet is the main class library which contains all of the neccessary methods to interact with the Loopring API.
 
 ### LoopNetConsole
-LoopNetConsole is a console application that you can use to play around with the methods from LoopNet.
+LoopNetConsole is a console application that you can use to play around with the methods from LoopNet. See [here](https://github.com/fudgebucket27/LoopNet/edit/master/README.md#running-the-tests) for setup.
 
 ### LoopNetTests
 LoopNetTests contains all of the tests. See [here](https://github.com/fudgebucket27/LoopNet/edit/master/README.md#running-the-tests) for setup.
