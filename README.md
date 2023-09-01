@@ -29,7 +29,7 @@ This will send 0.01 LRC to 0x991B6fE54d46e5e0CEEd38911cD4a8694bed386A with the m
 
 ## Building from source
 ### Setup
-Download Visual Studio 2022 with .NET 7 and open the solution file
+Clone this repo and download Visual Studio 2022 with .NET 7, then open the solution file
 
 ### The projects
 #### LoopNet
