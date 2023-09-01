@@ -31,7 +31,7 @@ namespace LoopNet.Services
             _ethAddress = ethAddress;
         }
 
-        public static async Task<LoopNetClient> CreateLoopringClientAsync(string l1PrivateKey, string ethAddress, bool showConnectionInfo = false)
+        public static async Task<LoopNetClient> CreateLoopNetClientAsync(string l1PrivateKey, string ethAddress, bool showConnectionInfo = false)
         {
             var instance = new LoopNetClient(l1PrivateKey, ethAddress);
             if (showConnectionInfo == true)
