@@ -13,7 +13,7 @@ namespace LoopNetTests
         private IConfiguration? _Configuration;
         private string? _l1PrivateKey;
         private string? _ethAddress;
-        private LoopringClient? _loopringClient;
+        private LoopNetClient? _loopNetClient;
         [TestInitialize]
         public async Task TestInitialize()
         {
@@ -33,7 +33,23 @@ namespace LoopNetTests
             Assert.IsFalse(string.IsNullOrEmpty(_l1PrivateKey), $"The key: 'Loopring:L1PrivateKey' was not found in '{secretsFile}'");
             Assert.IsFalse(string.IsNullOrEmpty(_ethAddress), $"The key: 'Loopring:Address' was not found in '{secretsFile}'");
             
-            _loopringClient = await LoopringClient.CreateLoopringClientAsync(_l1PrivateKey, _ethAddress);
+            _loopNetClient = await LoopNetClient.CreateLoopringClientAsync(_l1PrivateKey, _ethAddress);
+        }
+
+        [TestMethod]
+        [Description("Get storage id")]
+        public async Task GetStorageId()
+        {
+            var storageId = await _loopNetClient!.GetStorageId(1);
+            Assert.IsNotNull(storageId, "Could not get storage id");
+        }
+
+        [TestMethod]
+        [Description("Get offchain fee")]
+        public async Task GetOffchainFee()
+        {
+            var offchainFee = await _loopNetClient!.GetOffchainFee(15, "LRC", "1");
+            Assert.IsNotNull(offchainFee, "Could not get offchain fee");
         }
     }
 }

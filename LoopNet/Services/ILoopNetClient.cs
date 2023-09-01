@@ -7,12 +7,13 @@ using System.Threading.Tasks;
 
 namespace LoopNet.Services
 {
-    public interface ILoopringClient
+    public interface ILoopNetClient
     {
         Task<TickersResponse?> GetTickersAsync(string pairs);
         Task<MarketsResponse?> GetMarketsAsync();
         Task<AccountInformationResponse?> GetAccountInformationAsync(string owner);
         Task GetApiKeyAsync();
-        Task<StorageId> GetNextStorageId(int accountId, int sellTokenId)
+        Task<StorageIdResponse?> GetStorageId(int sellTokenId);
+        Task<OffchainFeeResponse?> GetOffchainFee(int requestType, string feeToken, string amount);
     }
 }

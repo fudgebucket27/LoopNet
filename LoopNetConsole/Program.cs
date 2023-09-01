@@ -33,9 +33,9 @@ if (string.IsNullOrEmpty(ethAddress))
 }
 #endregion
 
-var loopringClient = await LoopringClient.CreateLoopringClientAsync(l1PrivateKey, ethAddress);
-var markets = await loopringClient.GetMarketsAsync();
-var tickers = await loopringClient.GetTickersAsync("LRC-ETH");
+var loopNetClient = await LoopNetClient.CreateLoopringClientAsync(l1PrivateKey, ethAddress);
+var markets = await loopNetClient.GetMarketsAsync();
+var tickers = await loopNetClient.GetTickersAsync("LRC-ETH");
 
 Console.ReadKey();
 Console.WriteLine("Press any key to exit!");

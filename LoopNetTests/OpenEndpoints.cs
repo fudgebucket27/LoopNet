@@ -10,7 +10,7 @@ namespace LoopNetTests
         private IConfiguration? _Configuration;
         private string? _l1PrivateKey;
         private string? _ethAddress;
-        private LoopringClient? _loopringClient;
+        private LoopNetClient? _loopNetClient;
         [TestInitialize]
         public async Task TestInitialize()
         {
@@ -30,13 +30,13 @@ namespace LoopNetTests
             Assert.IsFalse(string.IsNullOrEmpty(_l1PrivateKey), $"The key: 'Loopring:L1PrivateKey' was not found in '{secretsFile}'");
             Assert.IsFalse(string.IsNullOrEmpty(_ethAddress), $"The key: 'Loopring:Address' was not found in '{secretsFile}'");
 
-            _loopringClient = await LoopringClient.CreateLoopringClientAsync(_l1PrivateKey, _ethAddress);
+            _loopNetClient = await LoopNetClient.CreateLoopringClientAsync(_l1PrivateKey, _ethAddress);
         }
         [TestMethod]
         [Description("Get markets")]
         public async Task GetMarkets()
         {
-            var markets = await _loopringClient!.GetMarketsAsync();
+            var markets = await _loopNetClient!.GetMarketsAsync();
             Assert.IsNotNull(markets, "Could not get markets!");
         }
 
@@ -44,7 +44,7 @@ namespace LoopNetTests
         [Description("Get tickers")]
         public async Task GetTickers()
         {
-            var tickers = await _loopringClient!.GetTickersAsync("LRC-ETH");
+            var tickers = await _loopNetClient!.GetTickersAsync("LRC-ETH");
             Assert.IsNotNull(tickers, "Could not get tickers!");
         }
     }

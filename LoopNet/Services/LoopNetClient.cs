@@ -8,30 +8,31 @@ using System.Net;
 
 namespace LoopNet.Services
 {
-    public class LoopringClient : ILoopringClient
+    public class LoopNetClient : ILoopNetClient
     {
-        private readonly RestClient _loopringClient;
+        private readonly RestClient _loopNetClient;
         private protected string? _l1PrivateKey;
         private protected string? _ethAddress;
         private protected string? _apiKey;
+        private protected AccountInformationResponse? _accountInformation;
 
-        private LoopringClient(string l1PrivateKey, string ethAddress)
+        private LoopNetClient(string l1PrivateKey, string ethAddress)
         {
-            _loopringClient = new RestClient("https://api3.loopring.io");
+            _loopNetClient = new RestClient("https://api3.loopring.io");
             _l1PrivateKey = l1PrivateKey;
             _ethAddress = ethAddress;
         }
 
-        public static async Task<LoopringClient> CreateLoopringClientAsync(string l1PrivateKey, string ethAddress)
+        public static async Task<LoopNetClient> CreateLoopringClientAsync(string l1PrivateKey, string ethAddress)
         {
-            var instance = new LoopringClient(l1PrivateKey, ethAddress);
+            var instance = new LoopNetClient(l1PrivateKey, ethAddress);
             await instance.GetApiKeyAsync();
             return instance;
         }
 
         public void Dispose()
         {
-            _loopringClient?.Dispose();
+            _loopNetClient?.Dispose();
             GC.SuppressFinalize(this);
         }
 
@@ -39,7 +40,7 @@ namespace LoopNet.Services
         {
             var request = new RestRequest("api/v3/ticker");
             request.AddParameter("market", pairs);
-            var response = await _loopringClient.ExecuteGetAsync<TickersResponse>(request);
+            var response = await _loopNetClient.ExecuteGetAsync<TickersResponse>(request);
             if (response.IsSuccessful)
             {
                 return response.Data;
@@ -53,7 +54,7 @@ namespace LoopNet.Services
         public async Task<MarketsResponse?> GetMarketsAsync()
         {
             var request = new RestRequest("api/v3/exchange/markets");
-            var response = await _loopringClient.ExecuteGetAsync<MarketsResponse>(request);
+            var response = await _loopNetClient.ExecuteGetAsync<MarketsResponse>(request);
             if (response.IsSuccessful)
             {
                 return response.Data;
@@ -68,7 +69,7 @@ namespace LoopNet.Services
         {
             var request = new RestRequest("api/v3/account");
             request.AddParameter("owner", owner);
-            var response = await _loopringClient.ExecuteGetAsync<AccountInformationResponse>(request);
+            var response = await _loopNetClient.ExecuteGetAsync<AccountInformationResponse>(request);
             if (response.IsSuccessful)
             {
                 return response.Data;
@@ -82,13 +83,13 @@ namespace LoopNet.Services
         public async Task GetApiKeyAsync()
         {
             //Getting the account information
-            var accountInformation = await GetAccountInformationAsync(_ethAddress!);
-            if (string.IsNullOrEmpty(accountInformation?.KeySeed))
+            _accountInformation = await GetAccountInformationAsync(_ethAddress!);
+            if (string.IsNullOrEmpty(_accountInformation?.KeySeed))
             {
-                accountInformation!.KeySeed = $"Sign this message to access Loopring Exchange: 0x0BABA1Ad5bE3a5C0a66E7ac838a129Bf948f1eA4 with key nonce: {accountInformation.KeyNonce - 1}";
+                _accountInformation!.KeySeed = $"Sign this message to access Loopring Exchange: 0x0BABA1Ad5bE3a5C0a66E7ac838a129Bf948f1eA4 with key nonce: {_accountInformation.KeyNonce - 1}";
             }
-            var messageToSign = accountInformation?.KeySeed;
-            int accountId = accountInformation!.AccountId;
+            var messageToSign = _accountInformation?.KeySeed;
+            int accountId = _accountInformation!.AccountId;
 
             var skipPublicKeyCalculation = false; //set to false to generate the public key details as well, set to true to skip public key generation which makes it run faster
 
@@ -105,15 +106,51 @@ namespace LoopNet.Services
             var request = new RestRequest("api/v3/apiKey");
             request.AddHeader("X-API-SIG", xApiSig);
             request.AddParameter("accountId", accountId);
-            var response = await _loopringClient.ExecuteGetAsync<ApiKeyResponse>(request);
+            var response = await _loopNetClient.ExecuteGetAsync<ApiKeyResponse>(request);
             if (response.IsSuccessful)
             {
                 _apiKey = response.Data!.ApiKey;
-                _loopringClient.AddDefaultHeader("X-API-KEY", _apiKey!);
+                _loopNetClient.AddDefaultHeader("X-API-KEY", _apiKey!);
             }
             else
             {
                 throw new Exception($"Error getting api key, HTTP Status Code:{response.StatusCode}, Content:{response.Content}");
+            }
+        }
+
+        public async Task<StorageIdResponse?> GetStorageId(int sellTokenId)
+        {
+            var request = new RestRequest("api/v3/storageId");
+            request.AddHeader("X-API-KEY", _apiKey!);
+            request.AddParameter("accountId", _accountInformation!.AccountId);
+            request.AddParameter("sellTokenId", sellTokenId);
+            var response = await _loopNetClient.ExecuteGetAsync<StorageIdResponse>(request);
+            if (response.IsSuccessful)
+            {
+                return response.Data!;
+            }
+            else
+            {
+                throw new Exception($"Error getting storage id, HTTP Status Code:{response.StatusCode}, Content:{response.Content}");
+            }
+        }
+
+        public async Task<OffchainFeeResponse?> GetOffchainFee(int requestType, string feeToken, string amount)
+        {
+            var request = new RestRequest("api/v3/user/offchainFee");
+            request.AddHeader("X-API-KEY", _apiKey!);
+            request.AddParameter("accountId", _accountInformation!.AccountId);
+            request.AddParameter("requestType", requestType);
+            request.AddParameter("tokenSymbol", feeToken);
+            request.AddParameter("amount", amount);
+            var response = await _loopNetClient.ExecuteGetAsync<OffchainFeeResponse>(request);
+            if (response.IsSuccessful)
+            {
+                return response.Data!;
+            }
+            else
+            {
+                throw new Exception($"Error getting offchain fee, HTTP Status Code:{response.StatusCode}, Content:{response.Content}");
             }
         }
     }
