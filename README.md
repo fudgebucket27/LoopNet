@@ -1,6 +1,9 @@
 # LoopNet
 This is an unofficial Loopring SDK in C# .NET 7
 
+## Important
+Use with caution in production. This is being actively developed and every new version will most likely have breaking changes until 1.0.0
+
 ## Adding to your project
 ### Installation
 You can get LoopNet from nuget. You can run the following command while in Visual Studio to install it into your project
