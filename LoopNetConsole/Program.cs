@@ -4,7 +4,7 @@ using Nethereum.Signer;
 using PoseidonSharp;
 using System.Numerics;
 
-#region Setup secrets and client
+#region Setup secrets
 string secretsFile = "secrets.json";
 if(!File.Exists(secretsFile))
 {
