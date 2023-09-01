@@ -10,8 +10,8 @@ namespace LoopNet.Models.Responses
     public class StorageIdResponse
     {
         [JsonProperty("orderId")]
-        public int orderId { get; set; }
+        public int OrderId { get; set; }
         [JsonProperty("offchainId")]
-        public int offchainId { get; set; }
+        public int OffchainId { get; set; }
     }
 }

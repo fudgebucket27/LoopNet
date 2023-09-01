@@ -5,13 +5,21 @@ using Nethereum.Signer;
 using PoseidonSharp;
 using System.Numerics;
 using System.Net;
+using Nethereum.Signer.Crypto;
+using Newtonsoft.Json.Linq;
+using LoopNet.Models.Requests;
+using LoopNet.Models.Helpers;
+using System;
+using Nethereum.Signer.EIP712;
+using Nethereum.Util;
 
 namespace LoopNet.Services
 {
     public class LoopNetClient : ILoopNetClient
     {
-        private readonly RestClient _loopNetClient;
+        private protected readonly RestClient _loopNetClient;
         private protected string? _l1PrivateKey;
+        private protected string? _l2PrivateKey;
         private protected string? _ethAddress;
         private protected string? _apiKey;
         private protected AccountInformationResponse? _accountInformation;
@@ -109,6 +117,7 @@ namespace LoopNet.Services
             var response = await _loopNetClient.ExecuteGetAsync<ApiKeyResponse>(request);
             if (response.IsSuccessful)
             {
+                _l2PrivateKey = l2KeyDetails.secretKey;
                 _apiKey = response.Data!.ApiKey;
                 _loopNetClient.AddDefaultHeader("X-API-KEY", _apiKey!);
             }
@@ -118,7 +127,7 @@ namespace LoopNet.Services
             }
         }
 
-        public async Task<StorageIdResponse?> GetStorageId(int sellTokenId)
+        public async Task<StorageIdResponse?> GetStorageIdAsync(int sellTokenId)
         {
             var request = new RestRequest("api/v3/storageId");
             request.AddHeader("X-API-KEY", _apiKey!);
@@ -135,7 +144,7 @@ namespace LoopNet.Services
             }
         }
 
-        public async Task<OffchainFeeResponse?> GetOffchainFee(int requestType, string feeToken, string amount)
+        public async Task<OffchainFeeResponse?> GetOffchainFeeAsync(int requestType, string feeToken, string amount)
         {
             var request = new RestRequest("api/v3/user/offchainFee");
             request.AddHeader("X-API-KEY", _apiKey!);
@@ -151,6 +160,159 @@ namespace LoopNet.Services
             else
             {
                 throw new Exception($"Error getting offchain fee, HTTP Status Code:{response.StatusCode}, Content:{response.Content}");
+            }
+        }
+
+        public async Task<string> PostTokenTransferAsync(string toAddress, string transferTokenSymbol, decimal tokenAmount, string feeTokenSymbol,  string memo)
+        {
+            int feeTokenId = 0; //Default to 0 for ETH, 1 is LRC
+            int transferTokenId = 0; //Default to 0 for ETH, 1 is LRC
+            if((transferTokenSymbol != "LRC" && transferTokenSymbol != "ETH") || (feeTokenSymbol != "LRC" && feeTokenSymbol != "ETH") )
+            {
+                throw new Exception($"LoopNet can only works with LRC or ETH!");
+            }
+            
+            if(transferTokenSymbol == "LRC")
+            {
+                transferTokenId = 1;
+            }
+
+            if(feeTokenSymbol == "LRC")
+            {
+                feeTokenId = 1;
+            }
+
+            var exchangeAddress = "0x0BABA1Ad5bE3a5C0a66E7ac838a129Bf948f1eA4";
+            var amount = (tokenAmount * 1000000000000000000m).ToString("0");
+            var offchainFee = await GetOffchainFeeAsync(3, transferTokenSymbol, amount); //request type is 3 for token transfers
+            var feeAmount = offchainFee!.Fees!.Where(w => w.Token == feeTokenSymbol).First().Fee;
+            var transferStorageId = await GetStorageIdAsync(transferTokenId);
+
+            //Setup transfer token request
+            var req = new TransferTokenRequest()
+            {
+                Exchange = exchangeAddress,
+                MaxFee = new Token()
+                {
+                    TokenId = feeTokenId,
+                    Volume = feeAmount
+                },
+                Token = new Token()
+                {
+                    TokenId = transferTokenId,
+                    Volume = amount
+                },
+                PayeeAddr = toAddress,
+                PayerAddr = _accountInformation!.Owner,
+                PayeeId = 0,
+                PayerId = _accountInformation!.AccountId,
+                StorageId = transferStorageId!.OffchainId,
+                ValidUntil = DateTimeOffset.Now.AddDays(365).ToUnixTimeSeconds(),
+                TokenName = transferTokenSymbol,
+                TokenFeeName = transferTokenSymbol
+            };
+
+            //Calculate eddsa signature
+            BigInteger[] eddsaSignatureinputs = {
+            LoopNetUtils.ParseHexUnsigned(req.Exchange),
+            (BigInteger)req.PayerId,
+            (BigInteger)req.PayeeId,
+            (BigInteger)req.Token.TokenId,
+            BigInteger.Parse(req.Token.Volume),
+            (BigInteger)req.MaxFee.TokenId,
+            BigInteger.Parse(req.MaxFee.Volume!),
+            LoopNetUtils.ParseHexUnsigned(req.PayeeAddr),
+            0,
+            0,
+            (BigInteger)req.ValidUntil,
+            (BigInteger)req.StorageId
+            };
+
+            Poseidon poseidonTransfer = new(13, 6, 53, "poseidon", 5, _securityTarget: 128);
+            BigInteger poseidonTransferHash = poseidonTransfer.CalculatePoseidonHash(eddsaSignatureinputs);
+            Eddsa eddsaTransfer = new(poseidonTransferHash, _l2PrivateKey);
+            string eddsaSignature = eddsaTransfer.Sign();
+
+            //Calculate ecdsa
+            string primaryTypeNameTransfer = "Transfer";
+            TypedData eip712TypedDataTransfer = new TypedData()
+            {
+                Domain = new Domain()
+                {
+                    Name = "Loopring Protocol",
+                    Version = "3.6.0",
+                    ChainId = 1, //1 for mainnet
+                    VerifyingContract = exchangeAddress,
+                },
+                PrimaryType = primaryTypeNameTransfer,
+                Types = new Dictionary<string, MemberDescription[]>()
+                {
+                    ["EIP712Domain"] = new[]
+                {
+                    new MemberDescription {Name = "name", Type = "string"},
+                    new MemberDescription {Name = "version", Type = "string"},
+                    new MemberDescription {Name = "chainId", Type = "uint256"},
+                    new MemberDescription {Name = "verifyingContract", Type = "address"},
+                },
+                    [primaryTypeNameTransfer] = new[]
+                {
+                    new MemberDescription {Name = "from", Type = "address"},            // payerAddr
+                    new MemberDescription {Name = "to", Type = "address"},              // toAddr
+                    new MemberDescription {Name = "tokenID", Type = "uint16"},          // token.tokenId 
+                    new MemberDescription {Name = "amount", Type = "uint96"},           // token.volume 
+                    new MemberDescription {Name = "feeTokenID", Type = "uint16"},       // maxFee.tokenId
+                    new MemberDescription {Name = "maxFee", Type = "uint96"},           // maxFee.volume
+                    new MemberDescription {Name = "validUntil", Type = "uint32"},       // validUntill
+                    new MemberDescription {Name = "storageID", Type = "uint32"}         // storageId
+                },
+
+                },
+                Message = new[]
+            {
+                new MemberValue {TypeName = "address", Value = _accountInformation.Owner},
+                new MemberValue {TypeName = "address", Value = toAddress},
+                new MemberValue {TypeName = "uint16", Value = req.Token.TokenId},
+                new MemberValue {TypeName = "uint96", Value = BigInteger.Parse(req.Token.Volume)},
+                new MemberValue {TypeName = "uint16", Value = req.MaxFee.TokenId},
+                new MemberValue {TypeName = "uint96", Value = BigInteger.Parse(req.MaxFee.Volume!)},
+                new MemberValue {TypeName = "uint32", Value = req.ValidUntil},
+                new MemberValue {TypeName = "uint32", Value = req.StorageId},
+            }
+            };
+
+            var signerTransfer = new Eip712TypedDataSigner();
+            var ethECKeyTransfer = new EthECKey(_l1PrivateKey!);
+            var encodedTypedDataTransfer = signerTransfer.EncodeTypedData(eip712TypedDataTransfer);
+            var ECDRSASignatureTransfer = ethECKeyTransfer.SignAndCalculateV(Sha3Keccack.Current.CalculateHash(encodedTypedDataTransfer));
+            var serializedECDRSASignatureTransfer = EthECDSASignature.CreateStringSignature(ECDRSASignatureTransfer);
+            var ecdsaSignature = serializedECDRSASignatureTransfer + "0" + (int)2;
+
+            var request = new RestRequest("api/v3/transfer");
+            request.AddHeader("x-api-key", _apiKey!);
+            request.AddHeader("x-api-sig", ecdsaSignature);
+            request.AlwaysMultipartFormData = true;
+            request.AddParameter("exchange", exchangeAddress);
+            request.AddParameter("payerId", _accountInformation!.AccountId);
+            request.AddParameter("payerAddr", _accountInformation.Owner);
+            request.AddParameter("payeeId", 0);
+            request.AddParameter("payeeAddr", toAddress);
+            request.AddParameter("token.tokenId", req.Token.TokenId);
+            request.AddParameter("token.volume", req.Token.Volume);
+            request.AddParameter("maxFee.tokenId", req.MaxFee.TokenId);
+            request.AddParameter("maxFee.volume", req.MaxFee.Volume);
+            request.AddParameter("storageId", req.StorageId);
+            request.AddParameter("validUntil", req.ValidUntil);
+            request.AddParameter("eddsaSignature", eddsaSignature);
+            request.AddParameter("ecdsaSignature", ecdsaSignature);
+            request.AddParameter("memo", memo);
+            var response = await _loopNetClient.ExecutePostAsync<string>(request);
+            if (response.IsSuccessful)
+            {
+                return response.Data!;
+            }
+            else
+            {
+                throw new Exception($"Error posting token transfer, HTTP Status Code:{response.StatusCode}, Content:{response.Content}");
             }
         }
     }

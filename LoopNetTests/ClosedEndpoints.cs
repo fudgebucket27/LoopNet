@@ -40,7 +40,7 @@ namespace LoopNetTests
         [Description("Get storage id")]
         public async Task GetStorageId()
         {
-            var storageId = await _loopNetClient!.GetStorageId(1);
+            var storageId = await _loopNetClient!.GetStorageIdAsync(1);
             Assert.IsNotNull(storageId, "Could not get storage id");
         }
 
@@ -48,7 +48,7 @@ namespace LoopNetTests
         [Description("Get offchain fee")]
         public async Task GetOffchainFee()
         {
-            var offchainFee = await _loopNetClient!.GetOffchainFee(15, "LRC", "1");
+            var offchainFee = await _loopNetClient!.GetOffchainFeeAsync(15, "LRC", "1");
             Assert.IsNotNull(offchainFee, "Could not get offchain fee");
         }
     }
