@@ -13,5 +13,6 @@ namespace LoopNet.Services
         Task<MarketsResponse?> GetMarketsAsync();
         Task<AccountInformationResponse?> GetAccountInformationAsync(string owner);
         Task GetApiKeyAsync();
+        Task<StorageId> GetNextStorageId(int accountId, int sellTokenId)
     }
 }

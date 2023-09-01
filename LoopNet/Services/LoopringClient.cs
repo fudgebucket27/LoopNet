@@ -10,19 +10,19 @@ namespace LoopNet.Services
 {
     public class LoopringClient : ILoopringClient
     {
-        private readonly RestClient _client;
+        private readonly RestClient _loopringClient;
         private protected string? _l1PrivateKey;
         private protected string? _ethAddress;
         private protected string? _apiKey;
 
         private LoopringClient(string l1PrivateKey, string ethAddress)
         {
-            _client = new RestClient("https://api3.loopring.io");
+            _loopringClient = new RestClient("https://api3.loopring.io");
             _l1PrivateKey = l1PrivateKey;
             _ethAddress = ethAddress;
         }
 
-        public static async Task<LoopringClient> CreateAsync(string l1PrivateKey, string ethAddress)
+        public static async Task<LoopringClient> CreateLoopringClientAsync(string l1PrivateKey, string ethAddress)
         {
             var instance = new LoopringClient(l1PrivateKey, ethAddress);
             await instance.GetApiKeyAsync();
@@ -31,7 +31,7 @@ namespace LoopNet.Services
 
         public void Dispose()
         {
-            _client?.Dispose();
+            _loopringClient?.Dispose();
             GC.SuppressFinalize(this);
         }
 
@@ -39,7 +39,7 @@ namespace LoopNet.Services
         {
             var request = new RestRequest("api/v3/ticker");
             request.AddParameter("market", pairs);
-            var response = await _client.ExecuteGetAsync<TickersResponse>(request);
+            var response = await _loopringClient.ExecuteGetAsync<TickersResponse>(request);
             if (response.IsSuccessful)
             {
                 return response.Data;
@@ -53,7 +53,7 @@ namespace LoopNet.Services
         public async Task<MarketsResponse?> GetMarketsAsync()
         {
             var request = new RestRequest("api/v3/exchange/markets");
-            var response = await _client.ExecuteGetAsync<MarketsResponse>(request);
+            var response = await _loopringClient.ExecuteGetAsync<MarketsResponse>(request);
             if (response.IsSuccessful)
             {
                 return response.Data;
@@ -68,7 +68,7 @@ namespace LoopNet.Services
         {
             var request = new RestRequest("api/v3/account");
             request.AddParameter("owner", owner);
-            var response = await _client.ExecuteGetAsync<AccountInformationResponse>(request);
+            var response = await _loopringClient.ExecuteGetAsync<AccountInformationResponse>(request);
             if (response.IsSuccessful)
             {
                 return response.Data;
@@ -105,11 +105,11 @@ namespace LoopNet.Services
             var request = new RestRequest("api/v3/apiKey");
             request.AddHeader("X-API-SIG", xApiSig);
             request.AddParameter("accountId", accountId);
-            var response = await _client.ExecuteGetAsync<ApiKeyResponse>(request);
+            var response = await _loopringClient.ExecuteGetAsync<ApiKeyResponse>(request);
             if (response.IsSuccessful)
             {
                 _apiKey = response.Data!.ApiKey;
-                _client.AddDefaultHeader("X-API-KEY", _apiKey!);
+                _loopringClient.AddDefaultHeader("X-API-KEY", _apiKey!);
             }
             else
             {

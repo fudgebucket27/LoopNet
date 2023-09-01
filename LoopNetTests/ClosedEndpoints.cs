@@ -33,7 +33,7 @@ namespace LoopNetTests
             Assert.IsFalse(string.IsNullOrEmpty(_l1PrivateKey), $"The key: 'Loopring:L1PrivateKey' was not found in '{secretsFile}'");
             Assert.IsFalse(string.IsNullOrEmpty(_ethAddress), $"The key: 'Loopring:Address' was not found in '{secretsFile}'");
             
-            _loopringClient = await LoopringClient.CreateAsync(_l1PrivateKey, _ethAddress);
+            _loopringClient = await LoopringClient.CreateLoopringClientAsync(_l1PrivateKey, _ethAddress);
         }
     }
 }
