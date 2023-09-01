@@ -20,7 +20,7 @@ namespace LoopNetTests
             string secretsFile = "secrets.json";
 
             // Assert that the file exists
-            Assert.IsTrue(File.Exists(secretsFile), $"Expected secrets file; '{secretsFile}' not found. Please create it in the root of the LoopNetTests solution.");
+            Assert.IsTrue(File.Exists(secretsFile), $"Expected secrets file; '{secretsFile}' not found. Please create it in the root of the LoopNetTests project.");
 
             //Build secrets.json file
             Configuration = new ConfigurationBuilder()
