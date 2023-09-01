@@ -34,10 +34,11 @@ if (string.IsNullOrEmpty(ethAddress))
     Console.WriteLine("Press any key to exit!");
     return;
 }
-var loopringClient = new LoopringClient();
 #endregion
 
 #region Get API Key
+var loopringClient = new LoopringClient();
+
 var accountInformation = await loopringClient.GetAccountInformationAsync(ethAddress!);
 if (string.IsNullOrEmpty(accountInformation?.KeySeed))
 {
