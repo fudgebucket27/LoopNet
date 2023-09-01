@@ -31,10 +31,14 @@ namespace LoopNet.Services
             _ethAddress = ethAddress;
         }
 
-        public static async Task<LoopNetClient> CreateLoopringClientAsync(string l1PrivateKey, string ethAddress)
+        public static async Task<LoopNetClient> CreateLoopringClientAsync(string l1PrivateKey, string ethAddress, bool showConnectionInfo = false)
         {
             var instance = new LoopNetClient(l1PrivateKey, ethAddress);
+            if (showConnectionInfo == true)
+                Console.WriteLine("Connecting to Loopring...");
             await instance.GetApiKeyAsync();
+            if (showConnectionInfo == true)
+                Console.WriteLine("Connected to Loopring...");
             return instance;
         }
 
@@ -163,7 +167,7 @@ namespace LoopNet.Services
             }
         }
 
-        public async Task<TransferTokenResponse> PostTokenTransferAsync(string toAddress, string transferTokenSymbol, decimal tokenAmount, string feeTokenSymbol,  string memo)
+        public async Task<TransferTokenResponse> PostTokenTransferAsync(string toAddress, string transferTokenSymbol, decimal tokenAmount, string feeTokenSymbol,  string memo, bool payAccountActivationFee = false)
         {
             int feeTokenId = 0; //Default to 0 for ETH, 1 is LRC
             int transferTokenId = 0; //Default to 0 for ETH, 1 is LRC
@@ -184,7 +188,15 @@ namespace LoopNet.Services
 
             var exchangeAddress = "0x0BABA1Ad5bE3a5C0a66E7ac838a129Bf948f1eA4";
             var amount = (tokenAmount * 1000000000000000000m).ToString("0");
-            var offchainFee = await GetOffchainFeeAsync(3, transferTokenSymbol, amount); //request type is 3 for token transfers
+            OffchainFeeResponse? offchainFee;
+            if (payAccountActivationFee == true)
+            {
+                offchainFee = await GetOffchainFeeAsync(15, transferTokenSymbol, amount);
+            }
+            else
+            {
+                offchainFee = await GetOffchainFeeAsync(3, transferTokenSymbol, amount); 
+            }            
             var feeAmount = offchainFee!.Fees!.Where(w => w.Token == feeTokenSymbol).First().Fee;
             var transferStorageId = await GetStorageIdAsync(transferTokenId);
 
@@ -305,6 +317,11 @@ namespace LoopNet.Services
             request.AddParameter("eddsaSignature", eddsaSignature);
             request.AddParameter("ecdsaSignature", ecdsaSignature);
             request.AddParameter("memo", memo);
+            if (payAccountActivationFee == true)
+            {
+                request.AddParameter("payPayeeUpdateAccount", "true");
+            }
+            
             var response = await _loopNetClient.ExecutePostAsync<TransferTokenResponse>(request);
             if (response.IsSuccessful)
             {
