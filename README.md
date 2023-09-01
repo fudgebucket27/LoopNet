@@ -17,6 +17,8 @@ Create the client as follows. How you retrieve the details for the L1 Private Ke
 var loopNetClient = await LoopNetClient.CreateLoopringClientAsync("L1 Private Key", "Eth Address in 0x format");
 ```
 
+The client will generate your Loopring Layer 2 Private Key and retrieve your Loopring API Key.
+
 ## Building from source
 ### Setup
 Download Visual Studio 2022 with .NET 7 and open the solution file
