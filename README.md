@@ -1,5 +1,5 @@
 # LoopNet
-This is the Unofficial Loopring SDK in C# .NET 7
+This is an unofficial Loopring SDK in C# .NET 7
 
 ## Adding to your project
 ### Installation
