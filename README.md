@@ -9,6 +9,14 @@ You can get LoopNet from nuget. You can run the following command while in Visua
 Install-Package LoopNet
 ```
 
+## Usage
+### Create the client
+Create the client as follows. How you retrieve the details for the L1 Private Key and Eth Address is up to you. Be it from a file, environment variable and etc. As long as the final form is a string.
+
+```csharp
+var loopNetClient = await LoopNetClient.CreateLoopringClientAsync("L1 Private Key", "Eth Address in 0x format");
+```
+
 ## Building from source
 ### Setup
 Download Visual Studio 2022 with .NET 7 and open the solution file
