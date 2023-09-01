@@ -98,7 +98,7 @@ namespace LoopNet.Services
         /// <summary>
         /// Gets account information
         /// </summary>
-        /// <param name="owner">The address to retireve account information from</param>
+        /// <param name="owner">The address to retrieve account information from</param>
         /// <returns>The account information</returns>
         /// <exception cref="Exception">Thrown when there is an issue with the Loopring API, most likey the address does not exist on Loopring</exception>
         public async Task<AccountInformationResponse?> GetAccountInformationAsync(string owner)
