@@ -26,7 +26,7 @@ namespace LoopNetTests
             Configuration = new ConfigurationBuilder()
                 .AddJsonFile(secretsFile)
                 .Build();
-            l1PrivateKey = Configuration!["Loopring:L1PrivateKey"];
+            l1PrivateKey = Configuration["Loopring:L1PrivateKey"];
             ethAddress = Configuration["Loopring:Address"];
 
             // Assert that the keys exist in the configuration

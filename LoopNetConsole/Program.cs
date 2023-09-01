@@ -16,7 +16,7 @@ if(!File.Exists(secretsFile))
 var Configuration = new ConfigurationBuilder()
         .AddJsonFile(secretsFile)
         .Build();
-var l1PrivateKey = Configuration!["Loopring:L1PrivateKey"];
+var l1PrivateKey = Configuration["Loopring:L1PrivateKey"];
 var ethAddress = Configuration["Loopring:Address"];
 // Assert that the keys exist in the configuration
 if(string.IsNullOrEmpty(l1PrivateKey))
