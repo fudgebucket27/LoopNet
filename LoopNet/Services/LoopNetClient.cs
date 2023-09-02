@@ -42,7 +42,7 @@ namespace LoopNet.Services
         }
 
         /// <summary>
-        /// Creates an instance of the LoopNet client.
+        /// Creates an instance of the LoopNet client. This will also generate the Loopring L2 Private Key and retrieve the Loopring API Key.
         /// </summary>
         /// <param name="l1PrivateKey">The L1 Private Key</param>
         /// <param name="ethAddress">The Eth address associated with the L1 Private Key in Ox format</param>

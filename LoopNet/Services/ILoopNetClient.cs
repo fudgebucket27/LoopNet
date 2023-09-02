@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 
 namespace LoopNet.Services
 {
+    /// <summary>
+    /// The LoopNet Client interface
+    /// </summary>
     public interface ILoopNetClient
     {
         /// <summary>
