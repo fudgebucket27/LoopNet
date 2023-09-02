@@ -650,5 +650,30 @@ namespace LoopNet.Services
                 throw new Exception($"Error getting nft collection info, HTTP Status Code:{response.StatusCode}, Content:{response.Content}");
             }
         }
+
+        /// <inheritdoc/>
+        public async Task<NftBalanceResponse?> GetNftTokenIdAsync(string nftData)
+        {
+            var request = new RestRequest("/api/v3/user/nft/balances");
+            request.AddHeader("x-api-key", _apiKey!);
+            request.AddParameter("accountId", _accountInformation!.AccountId);
+            request.AddParameter("nftDatas", nftData);
+            request.AddParameter("metadata", "true");
+            var response = await _loopNetClient.ExecuteGetAsync<NftBalanceResponse>(request);
+            if (response.IsSuccessful)
+            {
+                return response.Data;
+            }
+            else
+            {
+                throw new Exception($"Error getting nft token Id, HTTP Status Code:{response.StatusCode}, Content:{response.Content}");
+            }
+        }
+
+        /// <inheritdoc/>
+        public Task<TransferTokenResponse?> PostNftTransferAsync(string toAddress, string nftData, int amountOfEditionsToTransfer, string feeTokenSymbol, string memo, bool payAccountActivationFee = false)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
