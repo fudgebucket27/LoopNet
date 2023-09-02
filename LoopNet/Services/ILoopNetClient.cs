@@ -63,7 +63,7 @@ namespace LoopNet.Services
         /// <param name="payAccountActivationFee">Whether you want to pay the toAddress account activation fee. Optional, Defaults to false</param>
         /// <returns>The transfer token reponnse</returns>
         /// <exception cref="Exception">Thrown when there is an issue with the Loopring API, could be due to a number of issues such as storageId, offchainFee or not having enough balance of the transfer token</exception>
-        Task<TransferTokenResponse> PostTokenTransferAsync(string toAddress, string transferTokenSymbol, decimal tokenAmount, string feeTokenSymbol, string memo, bool payAccountActivationFee);
+        Task<TransferTokenResponse?> PostTokenTransferAsync(string toAddress, string transferTokenSymbol, decimal tokenAmount, string feeTokenSymbol, string memo, bool payAccountActivationFee = false);
 
         /// <summary>
         /// Get the counterfactual nft token address
@@ -71,18 +71,32 @@ namespace LoopNet.Services
         /// <param name="counterFactualNftInfo">The Counterfactual NFT info</param>
         /// <returns>The counterfactual nft token address</returns>
         /// <exception cref="Exception">Thrown when there is an issue with the Loopring API</exception>
-        Task<CounterFactualNft> GetCounterFactualNftTokenAddress(CounterFactualNftInfo counterFactualNftInfo);
+        Task<CounterFactualNft?> GetCounterFactualNftTokenAddressAsync(CounterFactualNftInfo counterFactualNftInfo);
 
         /// <summary>
-        /// Post the nft mint to the legacy contract
+        /// Post the nft mint to the legacy nft factor contract
         /// </summary>
-        /// <param name="ipfsMetadataJsonCid">The IPFS metadata json in CIDv0 format, ie starts with Qm</param>
+        /// <param name="ipfsMetadataJsonCidv0">The IPFS metadata json in CIDv0 format, ie starts with Qm</param>
         /// <param name="numberOfEditions">The number of editions, Set to 1 for 1 edition, 2 for 2 editions and etc</param>
         /// <param name="royaltyPercentage">The royalty percantage, a whole number between 0 to 10</param>
         /// <param name="tokenFeeSymbol">The token symbol for the fees, can be LRC or ETH</param>
+        /// <param name="royaltyAddress">The royalty address in 0x format, Optional. Only set if you want royalties go a different address than yourself</param>
         /// <returns>The Nft Mint Response</returns>
-        /// <exception cref="Exception">Thrown when there is an issue with the Loopring API, such as duplicate </exception>
-        Task<PostNftMintResponse> PostLegacyMintNft(string ipfsMetadataJsonCid, int numberOfEditions, int royaltyPercentage, string tokenFeeSymbol);
+        /// <exception cref="Exception">Thrown when there is an issue with the Loopring API, such as duplicate nft mints</exception>
+        Task<PostNftMintResponse?> PostLegacyMintNft(string ipfsMetadataJsonCidv0, int numberOfEditions, int royaltyPercentage, string tokenFeeSymbol, string? royaltyAddress = null);
+
+        /// <summary>
+        /// Post the nft mint to the current nft factory contract
+        /// </summary>
+        /// <param name="contractAddress">The contract address of the collection in 0x format</param>
+        /// <param name="ipfsMetadataJsonCidv0">The IPFS metadata json in CIDv0 format, ie starts with Qm</param>
+        /// <param name="numberOfEditions">The number of editions, Set to 1 for 1 edition, 2 for 2 editions and etc</param>
+        /// <param name="royaltyPercentage">The royalty percantage, a whole number between 0 to 10</param>
+        /// <param name="tokenFeeSymbol">The token symbol for the fees, can be LRC or ETH</param>
+        /// <param name="royaltyAddress">The royalty address in 0x format, Optional. Only set if you want royalties go a different address than yourself</param>
+        /// <returns>The Nft Mint Response</returns>
+        /// <exception cref="Exception">Thrown when there is an issue with the Loopring API, such as duplicate nft mints</exception>
+        Task<PostNftMintResponse?> PostNftMintAsync(string contractAddress, string ipfsMetadataJsonCidv0, int numberOfEditions, int royaltyPercentage, string tokenFeeSymbol, string? royaltyAddress = null);
 
 
         /// <summary>
@@ -92,6 +106,14 @@ namespace LoopNet.Services
         /// <param name="tokenAddress">The token address</param>
         /// <returns>The offchain fee for an nft request</returns>
         /// <exception cref="Exception">Thrown when there is an issue with the Loopring API</exception>
-        Task<OffchainFeeResponse> GetOffchainFeeNftAsync(int requestType, string tokenAddress);
+        Task<OffchainFeeResponse?> GetOffchainFeeNftAsync(int requestType, string tokenAddress);
+
+        /// <summary>
+        /// Gets information on an nft collection
+        /// </summary>
+        /// <param name="tokenAddress">The token address</param>
+        /// <returns>The nft collection result</returns>
+        /// <exception cref="Exception">Thrown when there is an issue with the Loopring API</exception>
+        Task<GetNftCollectionInfoResponse?> GetNftCollectionInfoAsync(string tokenAddress);
     }
 }
