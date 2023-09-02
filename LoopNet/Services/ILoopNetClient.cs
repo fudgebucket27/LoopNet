@@ -54,11 +54,18 @@ namespace LoopNet.Services
         /// <exception cref="Exception">Thrown when there is an issue with the Loopring API, most likey the fee token or request type doest not exist</exception>
         Task<OffchainFeeResponse?> GetOffchainFeeAsync(int requestType, string feeToken, string amount);
 
+        /// <summary>
+        /// Get the counterfactual nft token address
+        /// </summary>
+        /// <param name="counterFactualNftInfo">The Counterfactual NFT info</param>
+        /// <returns>The counterfactual nft token address</returns>
+        /// <exception cref="Exception">Thrown when there is an issue with the Loopring API</exception>
+        Task<CounterFactualNft?> GetCounterFactualNftTokenAddressAsync(CounterFactualNftInfo counterFactualNftInfo);
 
         /// <summary>
         /// Transfers a token to an address
         /// </summary>
-        /// <param name="toAddress">The address to transfer the token to</param>
+        /// <param name="toAddress">The address to transfer the token to in 0x format</param>
         /// <param name="transferTokenSymbol">The token symbol to transfer, Only works with ETH or LRC</param>
         /// <param name="tokenAmount">The amount of the transfer token to sell in decimals, ie 0.1m</param>
         /// <param name="feeTokenSymbol">The token symbol to pay fees in, ie Only works with ETH or LRC</param>
@@ -69,12 +76,17 @@ namespace LoopNet.Services
         Task<TransferTokenResponse?> PostTokenTransferAsync(string toAddress, string transferTokenSymbol, decimal tokenAmount, string feeTokenSymbol, string memo, bool payAccountActivationFee = false);
 
         /// <summary>
-        /// Get the counterfactual nft token address
+        /// Transfers a nft to an address
         /// </summary>
-        /// <param name="counterFactualNftInfo">The Counterfactual NFT info</param>
-        /// <returns>The counterfactual nft token address</returns>
-        /// <exception cref="Exception">Thrown when there is an issue with the Loopring API</exception>
-        Task<CounterFactualNft?> GetCounterFactualNftTokenAddressAsync(CounterFactualNftInfo counterFactualNftInfo);
+        /// <param name="toAddress">The address to transfer the NFT to in 0x format</param>
+        /// <param name="nftData">The nftData</param>
+        /// <param name="amountOfEditionsToTransfer">The amount of editions to transfer</param>
+        /// <param name="feeTokenSymbol">The token symbol to pay fees in, ie Only works with ETH or LRC</param>
+        /// <param name="memo">The memo to send,</param>
+        /// <param name="payAccountActivationFee">Whether you want to pay the toAddress account activation fee. Optional, Defaults to false</param>
+        /// <returns>The transfer token reponnse</returns>
+        /// <exception cref="Exception">Thrown when there is an issue with the Loopring API, could be due to a number of issues such as storageId, offchainFee or not having enough balance of the transfer token</exception>
+        Task<TransferTokenResponse?> PostNftTransferAsync(string toAddress, string nftData, int amountOfEditionsToTransfer, string feeTokenSymbol, string memo, bool payAccountActivationFee = false);
 
         /// <summary>
         /// Post the nft mint to the legacy nft factor contract
