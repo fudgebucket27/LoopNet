@@ -72,6 +72,15 @@ namespace LoopNet.Services
         Task<OffchainFeeResponse?> GetOffchainFeeNftAsync(int requestType, string tokenAddress);
 
         /// <summary>
+        /// Gets the offchain fee for an nft transfer request
+        /// </summary>
+        /// <param name="requestType">The request type</param>
+        /// <param name="amount">The amount</param>
+        /// <returns>The offchain fee for an nft transfer request</returns>
+        /// <exception cref="Exception">Thrown when there is an issue with the Loopring API</exception>
+        Task<OffchainFeeResponse?> GetOffchainFeeNftTransferAsync(int requestType, string amount);
+
+        /// <summary>
         /// Gets information on an nft collection
         /// </summary>
         /// <param name="tokenAddress">The token address</param>
@@ -111,7 +120,7 @@ namespace LoopNet.Services
         /// <param name="payAccountActivationFee">Whether you want to pay the toAddress account activation fee. Optional, Defaults to false</param>
         /// <returns>The transfer token reponnse</returns>
         /// <exception cref="Exception">Thrown when there is an issue with the Loopring API, could be due to a number of issues such as storageId, offchainFee or not having enough balance of the transfer token</exception>
-        //Task<TransferTokenResponse?> PostNftTransferAsync(string toAddress, string nftData, int amountOfEditionsToTransfer, string feeTokenSymbol, string memo, bool payAccountActivationFee = false);
+        Task<TransferTokenResponse?> PostNftTransferAsync(string toAddress, string nftData, int amountOfEditionsToTransfer, string feeTokenSymbol, string memo, bool payAccountActivationFee = false);
 
         /// <summary>
         /// Post the nft mint to the legacy nft factor contract
