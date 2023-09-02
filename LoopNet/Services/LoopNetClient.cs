@@ -29,7 +29,7 @@ namespace LoopNet.Services
 
         private LoopNetClient(string l1PrivateKey, string ethAddress)
         {
-            _loopNetClient = new RestClient("https://api3.loopring.io");
+            _loopNetClient = new RestClient(LoopNetConstantsHelper.ProductionLoopringApiEndpoint);
             _l1PrivateKey = l1PrivateKey;
             _ethAddress = ethAddress;
         }
@@ -61,7 +61,7 @@ namespace LoopNet.Services
         /// <inheritdoc />
         public async Task<TickersResponse?> GetTickersAsync(string pairs)
         {
-            var request = new RestRequest("api/v3/ticker");
+            var request = new RestRequest(LoopNetConstantsHelper.GetTickersApiEndpoint);
             request.AddParameter("market", pairs);
             var response = await _loopNetClient.ExecuteGetAsync<TickersResponse>(request);
             if (response.IsSuccessful)
@@ -77,7 +77,7 @@ namespace LoopNet.Services
         /// <inheritdoc/>
         public async Task<MarketsResponse?> GetMarketsAsync()
         {
-            var request = new RestRequest("api/v3/exchange/markets");
+            var request = new RestRequest(LoopNetConstantsHelper.GetMarketsApiEndpoint);
             var response = await _loopNetClient.ExecuteGetAsync<MarketsResponse>(request);
             if (response.IsSuccessful)
             {
@@ -92,7 +92,7 @@ namespace LoopNet.Services
         /// <inheritdoc/>
         public async Task<AccountInformationResponse?> GetAccountInformationAsync(string owner)
         {
-            var request = new RestRequest("api/v3/account");
+            var request = new RestRequest(LoopNetConstantsHelper.GetAccountInformationApiEndpoint);
             request.AddParameter("owner", owner);
             var response = await _loopNetClient.ExecuteGetAsync<AccountInformationResponse>(request);
             if (response.IsSuccessful)
@@ -132,7 +132,7 @@ namespace LoopNet.Services
             var eddsa = new Eddsa(apiSignatureBaseBigInteger, secretKey);
             var xApiSig = eddsa.Sign();
 
-            var request = new RestRequest("api/v3/apiKey");
+            var request = new RestRequest(LoopNetConstantsHelper.GetApiKeyApiEndpoint);
             request.AddHeader("X-API-SIG", xApiSig);
             request.AddParameter("accountId", accountId);
             var response = await _loopNetClient.ExecuteGetAsync<ApiKeyResponse>(request);
@@ -151,7 +151,7 @@ namespace LoopNet.Services
         /// <inheritdoc/>
         public async Task<StorageIdResponse?> GetStorageIdAsync(int sellTokenId)
         {
-            var request = new RestRequest("api/v3/storageId");
+            var request = new RestRequest(LoopNetConstantsHelper.GetStoragIdApiEndpoint);
             request.AddHeader("X-API-KEY", _apiKey!);
             request.AddParameter("accountId", _accountInformation!.AccountId);
             request.AddParameter("sellTokenId", sellTokenId);
@@ -169,7 +169,7 @@ namespace LoopNet.Services
         /// <inheritdoc/>
         public async Task<OffchainFeeResponse?> GetOffchainFeeAsync(int requestType, string feeToken, string amount)
         {
-            var request = new RestRequest("api/v3/user/offchainFee");
+            var request = new RestRequest(LoopNetConstantsHelper.GetOffchainFeeApiEndpoint);
             request.AddHeader("X-API-KEY", _apiKey!);
             request.AddParameter("accountId", _accountInformation!.AccountId);
             request.AddParameter("requestType", requestType);
@@ -319,7 +319,7 @@ namespace LoopNet.Services
             var serializedECDRSASignatureTransfer = EthECDSASignature.CreateStringSignature(ECDRSASignatureTransfer);
             var ecdsaSignature = serializedECDRSASignatureTransfer + "0" + (int)2;
 
-            var request = new RestRequest("api/v3/transfer");
+            var request = new RestRequest(LoopNetConstantsHelper.PostTokenTransferApiEndpoint);
             request.AddHeader("x-api-key", _apiKey!);
             request.AddHeader("x-api-sig", ecdsaSignature);
             request.AlwaysMultipartFormData = true;
