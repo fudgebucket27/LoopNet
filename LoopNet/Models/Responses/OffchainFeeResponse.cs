@@ -11,9 +11,11 @@ namespace LoopNet.Models.Responses
     {
         [JsonProperty("token")]
         public string? Token { get; set; }
-        [JsonProperty("Fee")]
+        [JsonProperty("tokenId")]
+        public int TokenId { get; set; }
+        [JsonProperty("fee")]
         public string? Fee { get; set; }
-        [JsonProperty("Discount")]
+        [JsonProperty("discount")]
         public decimal Discount { get; set; }
     }
 

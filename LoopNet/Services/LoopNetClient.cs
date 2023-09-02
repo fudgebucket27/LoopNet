@@ -12,6 +12,13 @@ using LoopNet.Models.Helpers;
 using System;
 using Nethereum.Signer.EIP712;
 using Nethereum.Util;
+using Org.BouncyCastle.Asn1.Ocsp;
+using Nethereum.Model;
+using System.Text.RegularExpressions;
+using Multiformats.Hash;
+using Nethereum.ABI;
+using Org.BouncyCastle.Utilities.Net;
+using System.Collections.Generic;
 
 namespace LoopNet.Services
 {
@@ -29,7 +36,7 @@ namespace LoopNet.Services
 
         private LoopNetClient(string l1PrivateKey, string ethAddress)
         {
-            _loopNetClient = new RestClient("https://api3.loopring.io");
+            _loopNetClient = new RestClient(LoopNetConstantsHelper.ProductionLoopringApiEndpoint);
             _l1PrivateKey = l1PrivateKey;
             _ethAddress = ethAddress;
         }
@@ -61,7 +68,7 @@ namespace LoopNet.Services
         /// <inheritdoc />
         public async Task<TickersResponse?> GetTickersAsync(string pairs)
         {
-            var request = new RestRequest("api/v3/ticker");
+            var request = new RestRequest(LoopNetConstantsHelper.GetTickersApiEndpoint);
             request.AddParameter("market", pairs);
             var response = await _loopNetClient.ExecuteGetAsync<TickersResponse>(request);
             if (response.IsSuccessful)
@@ -77,7 +84,7 @@ namespace LoopNet.Services
         /// <inheritdoc/>
         public async Task<MarketsResponse?> GetMarketsAsync()
         {
-            var request = new RestRequest("api/v3/exchange/markets");
+            var request = new RestRequest(LoopNetConstantsHelper.GetMarketsApiEndpoint);
             var response = await _loopNetClient.ExecuteGetAsync<MarketsResponse>(request);
             if (response.IsSuccessful)
             {
@@ -92,7 +99,7 @@ namespace LoopNet.Services
         /// <inheritdoc/>
         public async Task<AccountInformationResponse?> GetAccountInformationAsync(string owner)
         {
-            var request = new RestRequest("api/v3/account");
+            var request = new RestRequest(LoopNetConstantsHelper.GetAccountInformationApiEndpoint);
             request.AddParameter("owner", owner);
             var response = await _loopNetClient.ExecuteGetAsync<AccountInformationResponse>(request);
             if (response.IsSuccessful)
@@ -132,7 +139,7 @@ namespace LoopNet.Services
             var eddsa = new Eddsa(apiSignatureBaseBigInteger, secretKey);
             var xApiSig = eddsa.Sign();
 
-            var request = new RestRequest("api/v3/apiKey");
+            var request = new RestRequest(LoopNetConstantsHelper.GetApiKeyApiEndpoint);
             request.AddHeader("X-API-SIG", xApiSig);
             request.AddParameter("accountId", accountId);
             var response = await _loopNetClient.ExecuteGetAsync<ApiKeyResponse>(request);
@@ -151,14 +158,14 @@ namespace LoopNet.Services
         /// <inheritdoc/>
         public async Task<StorageIdResponse?> GetStorageIdAsync(int sellTokenId)
         {
-            var request = new RestRequest("api/v3/storageId");
+            var request = new RestRequest(LoopNetConstantsHelper.GetStoragIdApiEndpoint);
             request.AddHeader("X-API-KEY", _apiKey!);
             request.AddParameter("accountId", _accountInformation!.AccountId);
             request.AddParameter("sellTokenId", sellTokenId);
             var response = await _loopNetClient.ExecuteGetAsync<StorageIdResponse>(request);
             if (response.IsSuccessful)
             {
-                return response.Data!;
+                return response.Data;
             }
             else
             {
@@ -169,7 +176,7 @@ namespace LoopNet.Services
         /// <inheritdoc/>
         public async Task<OffchainFeeResponse?> GetOffchainFeeAsync(int requestType, string feeToken, string amount)
         {
-            var request = new RestRequest("api/v3/user/offchainFee");
+            var request = new RestRequest(LoopNetConstantsHelper.GetOffchainFeeApiEndpoint);
             request.AddHeader("X-API-KEY", _apiKey!);
             request.AddParameter("accountId", _accountInformation!.AccountId);
             request.AddParameter("requestType", requestType);
@@ -178,7 +185,7 @@ namespace LoopNet.Services
             var response = await _loopNetClient.ExecuteGetAsync<OffchainFeeResponse>(request);
             if (response.IsSuccessful)
             {
-                return response.Data!;
+                return response.Data;
             }
             else
             {
@@ -187,26 +194,26 @@ namespace LoopNet.Services
         }
 
         /// <inheritdoc/>
-        public async Task<TransferTokenResponse> PostTokenTransferAsync(string toAddress, string transferTokenSymbol, decimal tokenAmount, string feeTokenSymbol,  string memo, bool payAccountActivationFee = false)
+        public async Task<TransferTokenResponse?> PostTokenTransferAsync(string toAddress, string transferTokenSymbol, decimal tokenAmount, string feeTokenSymbol, string memo, bool payAccountActivationFee = false)
         {
             int feeTokenId = 0; //Default to 0 for ETH, 1 is LRC
             int transferTokenId = 0; //Default to 0 for ETH, 1 is LRC
-            if((transferTokenSymbol != "LRC" && transferTokenSymbol != "ETH") || (feeTokenSymbol != "LRC" && feeTokenSymbol != "ETH") )
+            if ((transferTokenSymbol != "LRC" && transferTokenSymbol != "ETH") || (feeTokenSymbol != "LRC" && feeTokenSymbol != "ETH"))
             {
-                throw new Exception($"LoopNet can only works with LRC or ETH!");
+                throw new Exception($"LoopNet only works with LRC or ETH!");
             }
-            
-            if(transferTokenSymbol == "LRC")
+
+            if (transferTokenSymbol == "LRC")
             {
                 transferTokenId = 1;
             }
 
-            if(feeTokenSymbol == "LRC")
+            if (feeTokenSymbol == "LRC")
             {
                 feeTokenId = 1;
             }
 
-            var exchangeAddress = "0x0BABA1Ad5bE3a5C0a66E7ac838a129Bf948f1eA4";
+            var exchangeAddress = LoopNetConstantsHelper.ExchangeAddress;
             var amount = (tokenAmount * 1000000000000000000m).ToString("0");
             OffchainFeeResponse? offchainFee;
             if (payAccountActivationFee == true)
@@ -215,8 +222,8 @@ namespace LoopNet.Services
             }
             else
             {
-                offchainFee = await GetOffchainFeeAsync(3, transferTokenSymbol, amount); 
-            }            
+                offchainFee = await GetOffchainFeeAsync(3, transferTokenSymbol, amount);
+            }
             var feeAmount = offchainFee!.Fees!.Where(w => w.Token == feeTokenSymbol).First().Fee;
             var transferStorageId = await GetStorageIdAsync(transferTokenId);
 
@@ -319,7 +326,7 @@ namespace LoopNet.Services
             var serializedECDRSASignatureTransfer = EthECDSASignature.CreateStringSignature(ECDRSASignatureTransfer);
             var ecdsaSignature = serializedECDRSASignatureTransfer + "0" + (int)2;
 
-            var request = new RestRequest("api/v3/transfer");
+            var request = new RestRequest(LoopNetConstantsHelper.PostTokenTransferApiEndpoint);
             request.AddHeader("x-api-key", _apiKey!);
             request.AddHeader("x-api-sig", ecdsaSignature);
             request.AlwaysMultipartFormData = true;
@@ -341,15 +348,306 @@ namespace LoopNet.Services
             {
                 request.AddParameter("payPayeeUpdateAccount", "true");
             }
-            
+
             var response = await _loopNetClient.ExecutePostAsync<TransferTokenResponse>(request);
             if (response.IsSuccessful)
             {
-                return response.Data!;
+                return response.Data;
             }
             else
             {
                 throw new Exception($"Error posting token transfer, HTTP Status Code:{response.StatusCode}, Content:{response.Content}");
+            }
+        }
+
+        /// <inheritdoc/>
+        public async Task<PostNftMintResponse?> PostLegacyMintNft(string ipfsMetadataJsonCidv0, int numberOfEditions, int royaltyPercentage, string tokenFeeSymbol, string? royaltyAddress = null)
+        {
+            var counterFactualNftInfo = new CounterFactualNftInfo
+            {
+                NftOwner = _accountInformation!.Owner,
+                NftFactory = LoopNetConstantsHelper.LegacyNftFactoryContract,
+                NftBaseUri = ""
+            };
+            var feeTokenId = 0;
+            if(tokenFeeSymbol != "LRC" && tokenFeeSymbol !="ETH")
+            {
+                throw new Exception("LoopNet only works with LRC or ETH!");
+            }
+
+            if(tokenFeeSymbol == "LRC")
+            {
+                feeTokenId = 1;
+            }
+
+            var counterFactualNft = await GetCounterFactualNftTokenAddressAsync(counterFactualNftInfo);
+            var offchainFee = await GetOffchainFeeNftAsync(9, counterFactualNft!.TokenAddress!);
+            var storageId = await GetStorageIdAsync(feeTokenId);
+
+            var ipfsCidv0Regex = new Regex(@"^Qm[123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]{44}$");
+            if(!ipfsCidv0Regex.IsMatch(ipfsMetadataJsonCidv0))
+            {
+                throw new Exception("IPFS metadata json cid is not in v0 format, ie starts with Qm!");
+            }
+
+            var multiHash = Multihash.Parse(ipfsMetadataJsonCidv0, Multiformats.Base.MultibaseEncoding.Base58Btc);
+            var multiHashString = multiHash.ToString();
+            var ipfsCidBigInteger = LoopNetUtils.ParseHexUnsigned(multiHashString);
+            var nftId = "0x" + ipfsCidBigInteger.ToString("x").Substring(4);
+
+            //Generate the poseidon hash for the nft data
+            var nftIdHi = LoopNetUtils.ParseHexUnsigned(nftId.Substring(0, 34));
+            var nftIdLo = LoopNetUtils.ParseHexUnsigned(nftId.Substring(34, 32));
+            var nftDataPoseidonInputs = new BigInteger[]
+            {
+                LoopNetUtils.ParseHexUnsigned(_accountInformation.Owner!),
+                (BigInteger) 0,
+                LoopNetUtils.ParseHexUnsigned(counterFactualNft.TokenAddress!),
+                nftIdLo,
+                nftIdHi,
+                (BigInteger)royaltyPercentage
+            };
+            var nftDataPoseidon = new Poseidon(7, 6, 52, "poseidon", 5, _securityTarget: 128);
+            var nftDataPoseidonHash = nftDataPoseidon.CalculatePoseidonHash(nftDataPoseidonInputs);
+
+            //Generate the poseidon hash for the remaining data
+            var validUntil = DateTimeOffset.Now.AddDays(30).ToUnixTimeSeconds();
+            var nftPoseidonInputs = new BigInteger[]
+            {
+                LoopNetUtils.ParseHexUnsigned(LoopNetConstantsHelper.ExchangeAddress),
+                (BigInteger) _accountInformation.AccountId,
+                (BigInteger) _accountInformation.AccountId,
+                nftDataPoseidonHash,
+                (BigInteger) numberOfEditions,
+                (BigInteger) feeTokenId,
+                BigInteger.Parse(offchainFee!.Fees![feeTokenId].Fee!),
+                (BigInteger) validUntil,
+                (BigInteger) storageId!.OffchainId
+            };
+            var nftPoseidon = new Poseidon(10, 6, 53, "poseidon", 5, _securityTarget: 128);
+            var nftPoseidonHash = nftPoseidon.CalculatePoseidonHash(nftPoseidonInputs);
+
+            //Generate the poseidon eddsa signature
+            Eddsa eddsa = new Eddsa(nftPoseidonHash, _l2PrivateKey);
+            string eddsaSignature = eddsa.Sign();
+
+            var request = new RestRequest(LoopNetConstantsHelper.PostNftMintApiEndpoint);
+            request.AddHeader("x-api-key", _apiKey!);
+            request.AlwaysMultipartFormData = true;
+            request.AddParameter("exchange", LoopNetConstantsHelper.ExchangeAddress);
+            request.AddParameter("minterId", _accountInformation.AccountId);
+            request.AddParameter("minterAddress", _accountInformation.Owner);
+            request.AddParameter("toAccountId", _accountInformation.AccountId);
+            request.AddParameter("toAddress", _accountInformation.Owner);
+            request.AddParameter("nftType", 0); //0 is ERC-1155, 1 is ERC-721 but Loopring does not support that yet...
+            request.AddParameter("tokenAddress", counterFactualNft.TokenAddress);
+            request.AddParameter("nftId", nftId);
+            request.AddParameter("amount", numberOfEditions);
+            request.AddParameter("validUntil", validUntil);
+            request.AddParameter("royaltyPercentage", royaltyPercentage);
+            request.AddParameter("storageId", storageId.OffchainId);
+            request.AddParameter("maxFee.tokenId", feeTokenId);
+            request.AddParameter("maxFee.amount", offchainFee.Fees[feeTokenId].Fee);
+            request.AddParameter("forceToMint", "false");
+            if(!string.IsNullOrEmpty(royaltyAddress))
+            {
+                request.AddParameter("royaltyAddress", royaltyAddress);
+            }
+            else
+            {
+                request.AddParameter("royaltyAddress", _accountInformation.Owner);
+            }
+            request.AddParameter("counterFactualNftInfo.nftFactory", counterFactualNftInfo.NftFactory);
+            request.AddParameter("counterFactualNftInfo.nftOwner", counterFactualNftInfo.NftOwner);
+            request.AddParameter("counterFactualNftInfo.nftBaseUri", counterFactualNftInfo.NftBaseUri);
+            request.AddParameter("eddsaSignature", eddsaSignature);
+            var response = await _loopNetClient.ExecutePostAsync<PostNftMintResponse>(request);
+            if (response.IsSuccessful)
+            {
+                return response.Data;
+            }
+            else
+            {
+                throw new Exception($"Error posting legacy nft mint, HTTP Status Code:{response.StatusCode}, Content:{response.Content}");
+            }
+        }
+
+        /// <inheritdoc/>
+        public async Task<OffchainFeeResponse?> GetOffchainFeeNftAsync(int requestType, string tokenAddress)
+        {
+            var request = new RestRequest(LoopNetConstantsHelper.GetOffchainFeeNftApiEndpoint);
+            request.AddHeader("x-api-key", _apiKey!);
+            request.AddParameter("accountId", _accountInformation!.AccountId);
+            request.AddParameter("requestType", requestType);
+            request.AddParameter("tokenAddress", tokenAddress);
+            var response = await _loopNetClient.ExecuteGetAsync<OffchainFeeResponse>(request);
+            if (response.IsSuccessful)
+            {
+                return response.Data;
+            }
+            else
+            {
+                throw new Exception($"Error getting offchain fee for nft mint, HTTP Status Code:{response.StatusCode}, Content:{response.Content}");
+            }
+        }
+
+        /// <inheritdoc/>
+        public async Task<CounterFactualNft?> GetCounterFactualNftTokenAddressAsync(CounterFactualNftInfo counterFactualNftInfo)
+        {
+            var request = new RestRequest(LoopNetConstantsHelper.GetCounterFactualNftTokenAddressApiEndpoint);
+            request.AddHeader("x-api-key", _apiKey!);
+            request.AddParameter("nftFactory", counterFactualNftInfo.NftFactory);
+            request.AddParameter("nftOwner", counterFactualNftInfo.NftOwner);
+            request.AddParameter("nftBaseUri", counterFactualNftInfo.NftBaseUri);
+
+            var response = await _loopNetClient.ExecuteGetAsync<CounterFactualNft>(request);
+            if (response.IsSuccessful)
+            {
+                return response.Data;
+            }
+            else
+            {
+                throw new Exception($"Error getting counterfactual nft token address, HTTP Status Code:{response.StatusCode}, Content:{response.Content}");
+            }
+        }
+
+        /// <inheritdoc/>
+        public async Task<PostNftMintResponse?> PostNftMintAsync(string contractAddress, string ipfsMetadataJsonCidv0, int numberOfEditions, int royaltyPercentage, string tokenFeeSymbol, string? royaltyAddress = null)
+        {
+            var feeTokenId = 0;
+            if (tokenFeeSymbol != "LRC" && tokenFeeSymbol != "ETH")
+            {
+                throw new Exception("LoopNet only works with LRC or ETH!");
+            }
+
+            if (tokenFeeSymbol == "LRC")
+            {
+                feeTokenId = 1;
+            }
+
+            var nftCollectionInfo = await GetNftCollectionInfoAsync(contractAddress);
+            if(nftCollectionInfo!.Collections!.Count == 0)
+            {
+                throw new Exception("That contract does not exist under your address!");
+            }
+
+            //Getting the token address
+            CounterFactualNftInfo counterFactualNftInfo = new CounterFactualNftInfo
+            {
+                NftOwner = _accountInformation!.Owner,
+                NftFactory = LoopNetConstantsHelper.CurrentNftFactoryContract,
+                NftBaseUri = nftCollectionInfo.Collections[0].Collection!.BaseUri
+            };
+
+            var counterFactualNft = await GetCounterFactualNftTokenAddressAsync(counterFactualNftInfo);
+            var offchainFee = await GetOffchainFeeNftAsync(9, counterFactualNft!.TokenAddress!);
+            var storageId = await GetStorageIdAsync(feeTokenId);
+
+            var ipfsCidv0Regex = new Regex(@"^Qm[123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]{44}$");
+            if (!ipfsCidv0Regex.IsMatch(ipfsMetadataJsonCidv0))
+            {
+                throw new Exception("IPFS metadata json cid is not in v0 format, ie starts with Qm!");
+            }
+
+            var multiHash = Multihash.Parse(ipfsMetadataJsonCidv0, Multiformats.Base.MultibaseEncoding.Base58Btc);
+            var multiHashString = multiHash.ToString();
+            var ipfsCidBigInteger = LoopNetUtils.ParseHexUnsigned(multiHashString);
+            var nftId = "0x" + ipfsCidBigInteger.ToString("x").Substring(4);
+
+            //Generate the poseidon hash for the nft data
+            var nftIdHi = LoopNetUtils.ParseHexUnsigned(nftId.Substring(0, 34));
+            var nftIdLo = LoopNetUtils.ParseHexUnsigned(nftId.Substring(34, 32));
+            var nftDataPoseidonInputs = new BigInteger[]
+            {
+                LoopNetUtils.ParseHexUnsigned(_accountInformation.Owner!),
+                (BigInteger) 0,
+                LoopNetUtils.ParseHexUnsigned(counterFactualNft.TokenAddress!),
+                nftIdLo,
+                nftIdHi,
+                (BigInteger)royaltyPercentage
+            };
+            var nftDataPoseidon = new Poseidon(7, 6, 52, "poseidon", 5, _securityTarget: 128);
+            var nftDataPoseidonHash = nftDataPoseidon.CalculatePoseidonHash(nftDataPoseidonInputs);
+
+            //Generate the poseidon hash for the remaining data
+            var validUntil = DateTimeOffset.Now.AddDays(30).ToUnixTimeSeconds();
+            var nftPoseidonInputs = new BigInteger[]
+            {
+                LoopNetUtils.ParseHexUnsigned(LoopNetConstantsHelper.ExchangeAddress),
+                (BigInteger) _accountInformation.AccountId,
+                (BigInteger) _accountInformation.AccountId,
+                nftDataPoseidonHash,
+                (BigInteger) numberOfEditions,
+                (BigInteger) feeTokenId,
+                BigInteger.Parse(offchainFee!.Fees![feeTokenId].Fee!),
+                (BigInteger) validUntil,
+                (BigInteger) storageId!.OffchainId
+            };
+            var nftPoseidon = new Poseidon(10, 6, 53, "poseidon", 5, _securityTarget: 128);
+            var nftPoseidonHash = nftPoseidon.CalculatePoseidonHash(nftPoseidonInputs);
+
+            //Generate the poseidon eddsa signature
+            Eddsa eddsa = new Eddsa(nftPoseidonHash, _l2PrivateKey);
+            string eddsaSignature = eddsa.Sign();
+
+            var request = new RestRequest(LoopNetConstantsHelper.PostNftMintApiEndpoint);
+            request.AddHeader("x-api-key", _apiKey!);
+            request.AlwaysMultipartFormData = true;
+            request.AddParameter("exchange", LoopNetConstantsHelper.ExchangeAddress);
+            request.AddParameter("minterId", _accountInformation.AccountId);
+            request.AddParameter("minterAddress", _accountInformation.Owner);
+            request.AddParameter("toAccountId", _accountInformation.AccountId);
+            request.AddParameter("toAddress", _accountInformation.Owner);
+            request.AddParameter("nftType", 0); //0 is ERC-1155, 1 is ERC-721 but Loopring does not support that yet...
+            request.AddParameter("tokenAddress", counterFactualNft.TokenAddress);
+            request.AddParameter("nftId", nftId);
+            request.AddParameter("amount", numberOfEditions);
+            request.AddParameter("validUntil", validUntil);
+            request.AddParameter("royaltyPercentage", royaltyPercentage);
+            request.AddParameter("storageId", storageId.OffchainId);
+            request.AddParameter("maxFee.tokenId", feeTokenId);
+            request.AddParameter("maxFee.amount", offchainFee.Fees[feeTokenId].Fee);
+            request.AddParameter("forceToMint", "false");
+            if (!string.IsNullOrEmpty(royaltyAddress))
+            {
+                request.AddParameter("royaltyAddress", royaltyAddress);
+            }
+            else
+            {
+                request.AddParameter("royaltyAddress", _accountInformation.Owner);
+            }
+            request.AddParameter("counterFactualNftInfo.nftFactory", counterFactualNftInfo.NftFactory);
+            request.AddParameter("counterFactualNftInfo.nftOwner", counterFactualNftInfo.NftOwner);
+            request.AddParameter("counterFactualNftInfo.nftBaseUri", counterFactualNftInfo.NftBaseUri);
+            request.AddParameter("eddsaSignature", eddsaSignature);
+            var response = await _loopNetClient.ExecutePostAsync<PostNftMintResponse>(request);
+            if (response.IsSuccessful)
+            {
+                return response.Data;
+            }
+            else
+            {
+                throw new Exception($"Error posting legacy nft mint, HTTP Status Code:{response.StatusCode}, Content:{response.Content}");
+            }
+        }
+
+        /// <inheritdoc/>
+        public async Task<GetNftCollectionInfoResponse?> GetNftCollectionInfoAsync(string tokenAddress)
+        {
+            var request = new RestRequest("api/v3/nft/collection");
+            request.AddHeader("x-api-key", _apiKey!);
+            request.AddParameter("limit", 12);
+            request.AddParameter("offset", 0);
+            request.AddParameter("owner", _accountInformation!.Owner);
+            request.AddParameter("tokenAddress", tokenAddress);
+            var response = await _loopNetClient.ExecuteGetAsync<GetNftCollectionInfoResponse>(request);
+            if (response.IsSuccessful)
+            {
+                return response.Data;
+            }
+            else
+            {
+                throw new Exception($"Error getting nft collection info, HTTP Status Code:{response.StatusCode}, Content:{response.Content}");
             }
         }
     }

@@ -17,6 +17,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Multiformats.Hash" Version="1.5.0" />
     <PackageReference Include="Nethereum.Signer" Version="4.16.0" />
     <PackageReference Include="Nethereum.Signer.EIP712" Version="4.1.1" />
     <PackageReference Include="PoseidonSharp" Version="1.0.7" />

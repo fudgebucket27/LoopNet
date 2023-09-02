@@ -11,7 +11,6 @@ namespace LoopNet.Models.Responses
     public class TickersResponse
     {
         [JsonProperty("tickers")]
-
         public List<List<string>>? Tickers { get; set; }
     }
 }
