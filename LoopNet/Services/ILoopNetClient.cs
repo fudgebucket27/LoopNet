@@ -1,4 +1,5 @@
-﻿using LoopNet.Models.Responses;
+﻿using LoopNet.Models.Requests;
+using LoopNet.Models.Responses;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -63,5 +64,34 @@ namespace LoopNet.Services
         /// <returns>The transfer token reponnse</returns>
         /// <exception cref="Exception">Thrown when there is an issue with the Loopring API, could be due to a number of issues such as storageId, offchainFee or not having enough balance of the transfer token</exception>
         Task<TransferTokenResponse> PostTokenTransferAsync(string toAddress, string transferTokenSymbol, decimal tokenAmount, string feeTokenSymbol, string memo, bool payAccountActivationFee);
+
+        /// <summary>
+        /// Get the counterfactual nft token address
+        /// </summary>
+        /// <param name="counterFactualNftInfo">The Counterfactual NFT info</param>
+        /// <returns>The counterfactual nft token address</returns>
+        /// <exception cref="Exception">Thrown when there is an issue with the Loopring API</exception>
+        Task<CounterFactualNft> GetCounterFactualNftTokenAddress(CounterFactualNftInfo counterFactualNftInfo);
+
+        /// <summary>
+        /// Post the nft mint to the legacy contract
+        /// </summary>
+        /// <param name="ipfsMetadataJsonCid">The IPFS metadata json in CIDv0 format, ie starts with Qm</param>
+        /// <param name="numberOfEditions">The number of editions, Set to 1 for 1 edition, 2 for 2 editions and etc</param>
+        /// <param name="royaltyPercentage">The royalty percantage, a whole number between 0 to 10</param>
+        /// <param name="tokenFeeSymbol">The token symbol for the fees, can be LRC or ETH</param>
+        /// <returns>The Nft Mint Response</returns>
+        /// <exception cref="Exception">Thrown when there is an issue with the Loopring API, such as duplicate </exception>
+        Task<PostNftMintResponse> PostLegacyMintNft(string ipfsMetadataJsonCid, int numberOfEditions, int royaltyPercentage, string tokenFeeSymbol);
+
+
+        /// <summary>
+        /// Gets the offchain fee for an nft request
+        /// </summary>
+        /// <param name="requestType">The request type</param>
+        /// <param name="tokenAddress">The token address</param>
+        /// <returns>The offchain fee for an nft request</returns>
+        /// <exception cref="Exception">Thrown when there is an issue with the Loopring API</exception>
+        Task<OffchainFeeResponse> GetOffchainFeeNftAsync(int requestType, string tokenAddress);
     }
 }
