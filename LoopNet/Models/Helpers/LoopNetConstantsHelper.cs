@@ -26,5 +26,6 @@ namespace LoopNet.Models.Helpers
 
         public const string PostTokenTransferApiEndpoint = "api/v3/transfer";
         public const string PostNftMintApiEndpoint = "api/v3/nft/mint";
+        public const string PostNftTransferApiEndpoint = "api/v3/nft/transfer";
     }
 }
