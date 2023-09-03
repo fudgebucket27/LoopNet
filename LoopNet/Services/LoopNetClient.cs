@@ -816,6 +816,7 @@ namespace LoopNet.Services
             request.AddParameter("storageId", storageId.OffchainId);
             request.AddParameter("validUntil", validUntil);
             request.AddParameter("eddsaSignature", eddsaSignature);
+            request.AddParameter("memo", memo);
             if (payAccountActivationFee == true)
             {
                 request.AddParameter("payPayeeUpdateAccount", "true");
