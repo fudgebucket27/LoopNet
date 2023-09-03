@@ -19,6 +19,7 @@ using Multiformats.Hash;
 using Nethereum.ABI;
 using Org.BouncyCastle.Utilities.Net;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace LoopNet.Services
 {
@@ -32,7 +33,7 @@ namespace LoopNet.Services
         private protected string? _l2PrivateKey;
         private protected string? _ethAddress;
         private protected string? _apiKey;
-        private protected AccountInformationResponse? _accountInformation;
+        public AccountInformationResponse? _accountInformation;
 
         private LoopNetClient(string l1PrivateKey, string ethAddress)
         {
@@ -63,6 +64,23 @@ namespace LoopNet.Services
         {
             _loopNetClient?.Dispose();
             GC.SuppressFinalize(this);
+        }
+
+        /// <inheritdoc />
+        public async Task<WalletTypeResponse?> GetWalletTypeAsync(string walletAddress)
+        {
+            var request = new RestRequest("api/wallet/v3/wallet/type");
+            //request.AddHeader("x-api-key", apiKey);
+            request.AddParameter("wallet", walletAddress);
+            var response = await _loopNetClient.ExecuteGetAsync<WalletTypeResponse>(request);
+            if (response.IsSuccessful)
+            {
+                return response.Data;
+            }
+            else
+            {
+                throw new Exception($"Error getting tickers, HTTP Status Code:{response.StatusCode}, Content:{response.Content}");
+            }
         }
 
         /// <inheritdoc />
@@ -118,6 +136,7 @@ namespace LoopNet.Services
         /// <exception cref="Exception">Thrown when there is an issue with the Loopring API, could be an issue with the L1 Private Key and Address being used</exception>
         private protected async Task GetApiKeyAsync()
         {
+            var walletType = await GetWalletTypeAsync(_ethAddress!);
             //Getting the account information
             _accountInformation = await GetAccountInformationAsync(_ethAddress!);
             if (string.IsNullOrEmpty(_accountInformation?.KeySeed))
@@ -131,7 +150,7 @@ namespace LoopNet.Services
 
             var signer = new EthereumMessageSigner();
             var signedMessageECDSA = signer.EncodeUTF8AndSign(messageToSign, new EthECKey(_l1PrivateKey));
-            var (secretKey, ethAddress, publicKeyX, publicKeyY) = LoopringL2KeyGenerator.GenerateL2KeyDetails(signedMessageECDSA, _ethAddress, skipPublicKeyCalculation);
+            var (secretKey, ethAddress, publicKeyX, publicKeyY) = LoopringL2KeyGenerator.GenerateL2KeyDetails(walletType!.Data!.IsContract == false ? signedMessageECDSA : signedMessageECDSA + "02", _ethAddress, skipPublicKeyCalculation); //if contract wallet add '02' to the end of the signed ECDSA message
 
             //Generating the x-api-sig header details for the get loopring api key endpoint
             var apiSignatureBase = "GET&https%3A%2F%2Fapi3.loopring.io%2Fapi%2Fv3%2FapiKey&accountId%3D" + accountId;
