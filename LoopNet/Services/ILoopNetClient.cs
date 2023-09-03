@@ -14,6 +14,14 @@ namespace LoopNet.Services
     public interface ILoopNetClient
     {
         /// <summary>
+        /// Gets the wallet type
+        /// </summary>
+        /// <param name="walletAddress">The wallet address in 0x format.</param>
+        /// <returns>The tickers</returns>
+        /// <exception cref="Exception">Thrown when there is an issue with the Loopring API</exception>
+        Task<WalletTypeResponse?> GetWalletTypeAsync(string walletAddress);
+
+        /// <summary>
         /// Gets tickers.
         /// </summary>
         /// <param name="pairs">A comma seperated list of pairs, ie: LRC-ETH,LRC-WBTC</param>
