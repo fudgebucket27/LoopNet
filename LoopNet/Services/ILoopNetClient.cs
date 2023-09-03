@@ -113,7 +113,7 @@ namespace LoopNet.Services
         /// Transfers a nft to an address
         /// </summary>
         /// <param name="toAddress">The address to transfer the NFT to in 0x format</param>
-        /// <param name="nftData">The nftData</param>
+        /// <param name="nftData">The nftData in 0x format</param>
         /// <param name="amountOfEditionsToTransfer">The amount of editions to transfer</param>
         /// <param name="feeTokenSymbol">The token symbol to pay fees in, ie Only works with ETH or LRC</param>
         /// <param name="memo">The memo to send,</param>
