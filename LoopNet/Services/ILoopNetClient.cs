@@ -19,7 +19,6 @@ namespace LoopNet.Services
         /// <param name="walletAddress">The wallet address in 0x format.</param>
         /// <returns>The tickers</returns>
         /// <exception cref="Exception">Thrown when there is an issue with the Loopring API</exception>
-        /// 
         Task<WalletTypeResponse?> GetWalletTypeAsync(string walletAddress);
 
         /// <summary>
