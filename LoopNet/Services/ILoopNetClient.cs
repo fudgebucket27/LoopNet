@@ -131,7 +131,7 @@ namespace LoopNet.Services
         Task<TransferTokenResponse?> PostNftTransferAsync(string toAddress, string nftData, int amountOfEditionsToTransfer, string feeTokenSymbol, string memo, bool payAccountActivationFee = false);
 
         /// <summary>
-        /// Post the nft mint to the legacy nft factor contract
+        /// Post the nft mint to the legacy nft factory contract
         /// </summary>
         /// <param name="ipfsMetadataJsonCidv0">The IPFS metadata json in CIDv0 format, ie starts with Qm</param>
         /// <param name="numberOfEditions">The number of editions, Set to 1 for 1 edition, 2 for 2 editions and etc</param>
