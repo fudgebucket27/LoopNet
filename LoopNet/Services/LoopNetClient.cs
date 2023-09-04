@@ -33,7 +33,8 @@ namespace LoopNet.Services
         private protected string? _l2PrivateKey;
         private protected string? _ethAddress;
         private protected string? _apiKey;
-        public AccountInformationResponse? _accountInformation;
+        private protected AccountInformationResponse? _accountInformation;
+        private protected CounterFactualWalletInfoResponse? _counterFactualWalletInfo;
 
         private LoopNetClient(string l1PrivateKey, string ethAddress)
         {
@@ -139,6 +140,7 @@ namespace LoopNet.Services
             var walletType = await GetWalletTypeAsync(_ethAddress!);
             //Getting the account information
             _accountInformation = await GetAccountInformationAsync(_ethAddress!);
+            _counterFactualWalletInfo = await GetWalletCounterFactualInfoAsync(_accountInformation!.AccountId);
             if (string.IsNullOrEmpty(_accountInformation?.KeySeed))
             {
                 _accountInformation!.KeySeed = $"Sign this message to access Loopring Exchange: 0x0BABA1Ad5bE3a5C0a66E7ac838a129Bf948f1eA4 with key nonce: {_accountInformation.KeyNonce - 1}";
@@ -154,7 +156,7 @@ namespace LoopNet.Services
             {
                 signedMessageECDSA += "02";
             }
-            var (secretKey, ethAddress, publicKeyX, publicKeyY) = LoopringL2KeyGenerator.GenerateL2KeyDetails(signedMessageECDSA, _ethAddress, skipPublicKeyCalculation); //if contract wallet add '02' to the end of the signed ECDSA message
+            var (secretKey, ethAddress, publicKeyX, publicKeyY) = LoopringL2KeyGenerator.GenerateL2KeyDetails(signedMessageECDSA, _ethAddress, skipPublicKeyCalculation);
 
             //Generating the x-api-sig header details for the get loopring api key endpoint
             var apiSignatureBase = "GET&https%3A%2F%2Fapi3.loopring.io%2Fapi%2Fv3%2FapiKey&accountId%3D" + accountId;
@@ -343,7 +345,7 @@ namespace LoopNet.Services
             };
 
             var signerTransfer = new Eip712TypedDataSigner();
-            var ethECKeyTransfer = new EthECKey(_l1PrivateKey!);
+            var ethECKeyTransfer = new EthECKey(_counterFactualWalletInfo == null ? _l1PrivateKey! : _l2PrivateKey!.Replace("0x", ""));
             var encodedTypedDataTransfer = signerTransfer.EncodeTypedData(eip712TypedDataTransfer);
             var ECDRSASignatureTransfer = ethECKeyTransfer.SignAndCalculateV(Sha3Keccack.Current.CalculateHash(encodedTypedDataTransfer));
             var serializedECDRSASignatureTransfer = EthECDSASignature.CreateStringSignature(ECDRSASignatureTransfer);
@@ -351,7 +353,7 @@ namespace LoopNet.Services
 
             var request = new RestRequest(LoopNetConstantsHelper.PostTokenTransferApiEndpoint);
             request.AddHeader("x-api-key", _apiKey!);
-            request.AddHeader("x-api-sig", ecdsaSignature);
+            request.AddHeader("x-api-sig", ecdsaSignature );
             request.AlwaysMultipartFormData = true;
             request.AddParameter("exchange", exchangeAddress);
             request.AddParameter("payerId", _accountInformation!.AccountId);
@@ -365,7 +367,18 @@ namespace LoopNet.Services
             request.AddParameter("storageId", req.StorageId);
             request.AddParameter("validUntil", req.ValidUntil);
             request.AddParameter("eddsaSignature", eddsaSignature);
-            request.AddParameter("ecdsaSignature", ecdsaSignature);
+            if(_counterFactualWalletInfo == null)
+            {
+                request.AddParameter("ecdsaSignature", ecdsaSignature);
+            }
+            else
+            {
+                request.AddParameter("counterFactualInfo.accountId", _accountInformation.AccountId);
+                request.AddParameter("counterFactualInfo.wallet", _counterFactualWalletInfo!.Wallet);
+                request.AddParameter("counterFactualInfo.walletFactory", _counterFactualWalletInfo.WalletFactory);
+                request.AddParameter("counterFactualInfo.walletSalt", _counterFactualWalletInfo.WalletSalt);
+                request.AddParameter("counterFactualInfo.walletOwner", _counterFactualWalletInfo.WalletOwner);
+            }
             request.AddParameter("memo", memo);
             if (payAccountActivationFee == true)
             {
@@ -816,7 +829,7 @@ namespace LoopNet.Services
 
 
             var signerTransfer = new Eip712TypedDataSigner();
-            var ethECKeyTransfer = new EthECKey(_l1PrivateKey!);
+            var ethECKeyTransfer = new EthECKey(_counterFactualWalletInfo == null ? _l1PrivateKey! : _l2PrivateKey!.Replace("0x", ""));
             var encodedTypedDataTransfer = signerTransfer.EncodeTypedData(eip712TypedData);
             var ECDRSASignatureTransfer = ethECKeyTransfer.SignAndCalculateV(Sha3Keccack.Current.CalculateHash(encodedTypedDataTransfer));
             var serializedECDRSASignatureTransfer = EthECDSASignature.CreateStringSignature(ECDRSASignatureTransfer);
@@ -838,7 +851,18 @@ namespace LoopNet.Services
             request.AddParameter("maxFee.amount", offchainFee.Fees[feeTokenId].Fee);
             request.AddParameter("storageId", storageId.OffchainId);
             request.AddParameter("validUntil", validUntil);
-            request.AddParameter("eddsaSignature", eddsaSignature);
+            if (_counterFactualWalletInfo == null)
+            {
+                request.AddParameter("ecdsaSignature", ecdsaSignature);
+            }
+            else
+            {
+                request.AddParameter("counterFactualInfo.accountId", _accountInformation.AccountId);
+                request.AddParameter("counterFactualInfo.wallet", _counterFactualWalletInfo!.Wallet);
+                request.AddParameter("counterFactualInfo.walletFactory", _counterFactualWalletInfo.WalletFactory);
+                request.AddParameter("counterFactualInfo.walletSalt", _counterFactualWalletInfo.WalletSalt);
+                request.AddParameter("counterFactualInfo.walletOwner", _counterFactualWalletInfo.WalletOwner);
+            }
             request.AddParameter("memo", memo);
             if (payAccountActivationFee == true)
             {
@@ -852,6 +876,22 @@ namespace LoopNet.Services
             else
             {
                 throw new Exception($"Error posting nft transfer, HTTP Status Code:{response.StatusCode}, Content:{response.Content}");
+            }
+        }
+
+        /// <inheritdoc/>
+        public async Task<CounterFactualWalletInfoResponse?> GetWalletCounterFactualInfoAsync(int accountId)
+        {
+            var request = new RestRequest(LoopNetConstantsHelper.GetWalletCounterfactualInfoApiEndpoint);
+            request.AddParameter("accountId", accountId);
+            var response = await _loopNetClient.ExecuteGetAsync<CounterFactualWalletInfoResponse>(request);
+            if (response.IsSuccessful)
+            {
+                return response.Data;
+            }
+            else
+            {
+                return null; //response will not be successful if counterfactual info can not be found so just return null;
             }
         }
     }

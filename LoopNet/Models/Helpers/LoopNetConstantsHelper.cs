@@ -22,10 +22,13 @@ namespace LoopNet.Models.Helpers
         public const string GetOffchainFeeNftApiEndpoint = "api/v3/user/nft/offchainFee";
         public const string GetCounterFactualNftTokenAddressApiEndpoint = "api/v3/nft/info/computeTokenAddress";
         public const string GetNftCollectionInfoApiEndpoint = "api/v3/nft/collection";
+        public const string GetWalletCounterfactualInfoApiEndpoint = "api/v3/counterFactualInfo";
 
 
         public const string PostTokenTransferApiEndpoint = "api/v3/transfer";
         public const string PostNftMintApiEndpoint = "api/v3/nft/mint";
         public const string PostNftTransferApiEndpoint = "api/v3/nft/transfer";
+
+
     }
 }

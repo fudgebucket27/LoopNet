@@ -53,6 +53,6 @@ var loopNetClient = await LoopNetClient.CreateLoopNetClientAsync(l1PrivateKey, e
 //var postLegacyNftMintResponse = await loopNetClient.PostLegacyMintNft("QmYk96iRW6v2p664VqFngzuWD6HDtsr28k9kng238k54cB", 10, 6, "LRC");
 //Console.WriteLine(JsonConvert.SerializeObject(postLegacyNftMintResponse, Formatting.Indented));
 
-//var tokenTransferResponse = await loopNetClient.PostTokenTransferAsync("0x991B6fE54d46e5e0CEEd38911cD4a8694bed386A", "LRC", 0.01m, "LRC", "LoopNet test"); //You probably want to comment this out or change the address to transfer to.....
-//Console.WriteLine(JsonConvert.SerializeObject(tokenTransferResponse, Formatting.Indented));
+var tokenTransferResponse = await loopNetClient.PostTokenTransferAsync("0x991B6fE54d46e5e0CEEd38911cD4a8694bed386A", "LRC", 0.01m, "LRC", "LoopNet test"); //You probably want to comment this out or change the address to transfer to.....
+Console.WriteLine(JsonConvert.SerializeObject(tokenTransferResponse, Formatting.Indented));
 

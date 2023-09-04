@@ -21,6 +21,15 @@ namespace LoopNet.Services
         /// <exception cref="Exception">Thrown when there is an issue with the Loopring API</exception>
         Task<WalletTypeResponse?> GetWalletTypeAsync(string walletAddress);
 
+
+        /// <summary>
+        /// Gets the counterfactual info for a wallet
+        /// </summary>
+        /// <remarks>This method returns null if the wallet counterfactual info can not be found</remarks>
+        /// <param name="accountId">The account id of the wallet</param>
+        /// <returns>The wallet type</returns>
+        Task<CounterFactualWalletInfoResponse?> GetWalletCounterFactualInfoAsync(int accountId);
+
         /// <summary>
         /// Gets tickers.
         /// </summary>
