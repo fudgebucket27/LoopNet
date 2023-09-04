@@ -150,7 +150,11 @@ namespace LoopNet.Services
 
             var signer = new EthereumMessageSigner();
             var signedMessageECDSA = signer.EncodeUTF8AndSign(messageToSign, new EthECKey(_l1PrivateKey));
-            var (secretKey, ethAddress, publicKeyX, publicKeyY) = LoopringL2KeyGenerator.GenerateL2KeyDetails(walletType!.Data!.IsContract == false ? signedMessageECDSA : signedMessageECDSA + "02", _ethAddress, skipPublicKeyCalculation); //if contract wallet add '02' to the end of the signed ECDSA message
+            if (walletType!.Data!.IsContract == false || walletType!.Data!.IsInCounterFactualStatus== true)
+            {
+                signedMessageECDSA += "02";
+            }
+            var (secretKey, ethAddress, publicKeyX, publicKeyY) = LoopringL2KeyGenerator.GenerateL2KeyDetails(signedMessageECDSA, _ethAddress, skipPublicKeyCalculation); //if contract wallet add '02' to the end of the signed ECDSA message
 
             //Generating the x-api-sig header details for the get loopring api key endpoint
             var apiSignatureBase = "GET&https%3A%2F%2Fapi3.loopring.io%2Fapi%2Fv3%2FapiKey&accountId%3D" + accountId;
