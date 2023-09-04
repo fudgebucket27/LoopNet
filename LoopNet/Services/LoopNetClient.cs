@@ -20,6 +20,7 @@ using Nethereum.ABI;
 using Org.BouncyCastle.Utilities.Net;
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace LoopNet.Services
 {
@@ -152,7 +153,7 @@ namespace LoopNet.Services
 
             var signer = new EthereumMessageSigner();
             var signedMessageECDSA = signer.EncodeUTF8AndSign(messageToSign, new EthECKey(_l1PrivateKey));
-            if (walletType!.Data!.IsContract == true || walletType!.Data!.IsInCounterFactualStatus== true)
+            if (walletType!.Data!.IsContract == true || walletType!.Data!.IsInCounterFactualStatus == true)
             {
                 signedMessageECDSA += "02";
             }
@@ -353,7 +354,7 @@ namespace LoopNet.Services
 
             var request = new RestRequest(LoopNetConstantsHelper.PostTokenTransferApiEndpoint);
             request.AddHeader("x-api-key", _apiKey!);
-            request.AddHeader("x-api-sig", ecdsaSignature );
+            request.AddHeader("x-api-sig", ecdsaSignature);
             request.AlwaysMultipartFormData = true;
             request.AddParameter("exchange", exchangeAddress);
             request.AddParameter("payerId", _accountInformation!.AccountId);
@@ -367,7 +368,7 @@ namespace LoopNet.Services
             request.AddParameter("storageId", req.StorageId);
             request.AddParameter("validUntil", req.ValidUntil);
             request.AddParameter("eddsaSignature", eddsaSignature);
-            if(_counterFactualWalletInfo == null)
+            if (_counterFactualWalletInfo == null)
             {
                 request.AddParameter("ecdsaSignature", ecdsaSignature);
             }
@@ -740,7 +741,7 @@ namespace LoopNet.Services
             }
 
             var nftInfo = await GetNftTokenIdAsync(nftData);
-            if(nftInfo!.TotalNum == 0)
+            if (nftInfo!.TotalNum == 0)
             {
                 throw new Exception("Can not find token id for the given nftData!");
             }
@@ -897,7 +898,7 @@ namespace LoopNet.Services
         }
 
         /// <inheritdoc/>
-        public async Task<Dictionary<string, Datum>> GetNftWalletBalanceAsync(int? acccountId = null)
+        public async Task<Dictionary<string, Datum>?> GetNftWalletBalanceAsync(int? acccountId = null)
         {
             Dictionary<string, Datum> dataDictionary = new();
             int offset = 0;
@@ -941,6 +942,46 @@ namespace LoopNet.Services
             }
 
             return dataDictionary;
+        }
+
+        /// <inheritdoc/>
+        public async Task<List<NftHolder>?> GetNftHoldersAsync(string nftData)
+        {
+            const int limit = 50;
+            int offset = 0;
+            var allData = new List<NftHolder>();
+
+            while (true)
+            {
+                var request = new RestRequest(LoopNetConstantsHelper.GetNftHoldersApiEndpoint);
+                request.AddHeader("x-api-key", _apiKey!);
+                request.AddParameter("nftData", nftData);
+                request.AddParameter("limit", limit);
+                request.AddParameter("offset", offset);
+
+                var response = await _loopNetClient.ExecuteGetAsync<NftHoldersResponse>(request);
+                if(!response.IsSuccessful)
+                {
+                    throw new Exception($"Error getting nft holders for the given nftData, HTTP Status Code:{response.StatusCode}, Content:{response.Content}");
+                }
+
+                if (response.Data?.NftHolders == null || !response.Data.NftHolders.Any())
+                {
+                    break;
+                }
+
+                allData.AddRange(response.Data.NftHolders);
+
+                if (allData.Count >= response.Data.TotalNum)
+                {
+                    break;
+                }
+
+                offset += limit;
+            }
+
+            return allData;
+
         }
     }
 }
