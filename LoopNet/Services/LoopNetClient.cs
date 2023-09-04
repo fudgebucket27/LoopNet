@@ -895,5 +895,52 @@ namespace LoopNet.Services
                 return null; //response will not be successful if counterfactual info can not be found so just return null;
             }
         }
+
+        /// <inheritdoc/>
+        public async Task<Dictionary<string, Datum>> GetNftWalletBalanceAsync(int? acccountId = null)
+        {
+            Dictionary<string, Datum> dataDictionary = new();
+            int offset = 0;
+            int limit = 50;
+            while (true)
+            {
+                var request = new RestRequest(LoopNetConstantsHelper.GetNftWalletBalanceApiEndpoint);
+                request.AddHeader("x-api-key", _apiKey!);
+                request.AddParameter("accountId", acccountId.HasValue ? acccountId.Value : _accountInformation!.AccountId);
+                request.AddParameter("metadata", "true");
+                request.AddParameter("limit", limit);
+                request.AddParameter("offset", offset);
+
+                var response = await _loopNetClient.ExecuteGetAsync<NftBalanceResponse>(request);
+                if (!response.IsSuccessful)
+                {
+                    throw new Exception($"Error getting nft wallet balance, HTTP Status Code:{response.StatusCode}, Content:{response.Content}");
+                }
+
+                // If no data is returned, exit the loop.
+                if (response.Data == null || !response.Data.Data!.Any())
+                {
+                    break;
+                }
+
+                foreach (var datum in response.Data.Data!)
+                {
+                    if (!dataDictionary.ContainsKey(datum.NftData!))
+                    {
+                        dataDictionary[datum.NftData!] = datum;
+                    }
+                }
+
+                // If the number of data items is less than the limit, exit the loop.
+                if (response.Data.Data.Count < limit)
+                {
+                    break;
+                }
+
+                offset += limit;
+            }
+
+            return dataDictionary;
+        }
     }
 }
