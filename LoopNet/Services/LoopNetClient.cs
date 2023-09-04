@@ -150,7 +150,7 @@ namespace LoopNet.Services
 
             var signer = new EthereumMessageSigner();
             var signedMessageECDSA = signer.EncodeUTF8AndSign(messageToSign, new EthECKey(_l1PrivateKey));
-            if (walletType!.Data!.IsContract == false || walletType!.Data!.IsInCounterFactualStatus== true)
+            if (walletType!.Data!.IsContract == true || walletType!.Data!.IsInCounterFactualStatus== true)
             {
                 signedMessageECDSA += "02";
             }
