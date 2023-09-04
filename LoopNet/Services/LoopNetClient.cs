@@ -543,7 +543,7 @@ namespace LoopNet.Services
             }
             else
             {
-                throw new Exception($"Error getting offchain fee for nft mint, HTTP Status Code:{response.StatusCode}, Content:{response.Content}");
+                throw new Exception($"Error getting offchain fee for nft transfer, HTTP Status Code:{response.StatusCode}, Content:{response.Content}");
             }
         }
 
@@ -683,7 +683,7 @@ namespace LoopNet.Services
             }
             else
             {
-                throw new Exception($"Error posting legacy nft mint, HTTP Status Code:{response.StatusCode}, Content:{response.Content}");
+                throw new Exception($"Error posting nft mint, HTTP Status Code:{response.StatusCode}, Content:{response.Content}");
             }
         }
 
