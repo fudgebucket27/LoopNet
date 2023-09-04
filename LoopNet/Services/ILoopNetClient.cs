@@ -27,7 +27,7 @@ namespace LoopNet.Services
         /// </summary>
         /// <param name="nftData">The nftData</param>
         /// <returns>A list of holders for the given nftData</returns>
-        /// <exception cref="Exception">Thrown when there is an issue with the Loopring API, if nftData does not exist</exception>
+        /// <exception cref="Exception">Thrown when there is an issue with the Loopring API</exception>
         Task<List<NftHolder>?> GetNftHoldersAsync(string nftData);
 
         /// <summary>
