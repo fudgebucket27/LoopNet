@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace LoopNet.Models.Responses
 {
-    public class CounterFactualInfoResponse
+    public class CounterFactualWalletInfoResponse
     {
         [JsonProperty("accountId")]
         public int AccountId { get; set; }
