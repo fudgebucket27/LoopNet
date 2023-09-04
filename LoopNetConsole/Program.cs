@@ -36,8 +36,8 @@ if (string.IsNullOrEmpty(ethAddress))
 #endregion
 
 var loopNetClient = await LoopNetClient.CreateLoopNetClientAsync(l1PrivateKey, ethAddress, true);
-//var postNftTransferResponse = await loopNetClient.PostNftTransferAsync("0x99fdddfdc9277404db0379009274cc98d3688f8b", "0x2a212b36db36d229d3ee5690c7f9fe0099b53d6f05cfb0349060f4c18012a664", 1, "LRC", "test LoopNet");
-//Console.WriteLine(JsonConvert.SerializeObject(postNftTransferResponse, Formatting.Indented));
+var postNftTransferResponse = await loopNetClient.PostNftTransferAsync("0x99fdddfdc9277404db0379009274cc98d3688f8b", "0x2a212b36db36d229d3ee5690c7f9fe0099b53d6f05cfb0349060f4c18012a664", 1, "LRC", "clsw loopnet test");
+Console.WriteLine(JsonConvert.SerializeObject(postNftTransferResponse, Formatting.Indented));
 
 
 //var nftBalanceResponse = await loopNetClient.GetNftTokenIdAsync("0x2a212b36db36d229d3ee5690c7f9fe0099b53d6f05cfb0349060f4c18012a664");
@@ -53,6 +53,6 @@ var loopNetClient = await LoopNetClient.CreateLoopNetClientAsync(l1PrivateKey, e
 //var postLegacyNftMintResponse = await loopNetClient.PostLegacyMintNft("QmYk96iRW6v2p664VqFngzuWD6HDtsr28k9kng238k54cB", 10, 6, "LRC");
 //Console.WriteLine(JsonConvert.SerializeObject(postLegacyNftMintResponse, Formatting.Indented));
 
-var tokenTransferResponse = await loopNetClient.PostTokenTransferAsync("0x991B6fE54d46e5e0CEEd38911cD4a8694bed386A", "LRC", 0.01m, "LRC", "LoopNet test"); //You probably want to comment this out or change the address to transfer to.....
-Console.WriteLine(JsonConvert.SerializeObject(tokenTransferResponse, Formatting.Indented));
+//var tokenTransferResponse = await loopNetClient.PostTokenTransferAsync("0x991B6fE54d46e5e0CEEd38911cD4a8694bed386A", "LRC", 0.01m, "LRC", "LoopNet test"); //You probably want to comment this out or change the address to transfer to.....
+//Console.WriteLine(JsonConvert.SerializeObject(tokenTransferResponse, Formatting.Indented));
 

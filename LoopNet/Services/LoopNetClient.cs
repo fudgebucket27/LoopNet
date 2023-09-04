@@ -851,6 +851,7 @@ namespace LoopNet.Services
             request.AddParameter("maxFee.amount", offchainFee.Fees[feeTokenId].Fee);
             request.AddParameter("storageId", storageId.OffchainId);
             request.AddParameter("validUntil", validUntil);
+            request.AddParameter("eddsaSignature", eddsaSignature);
             if (_counterFactualWalletInfo == null)
             {
                 request.AddParameter("ecdsaSignature", ecdsaSignature);
