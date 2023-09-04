@@ -14,6 +14,23 @@ namespace LoopNet.Services
     public interface ILoopNetClient
     {
         /// <summary>
+        /// Gets the nft balance of a wallet
+        /// </summary>
+        /// <param name="acccountId">The account id of the wallet. Optional, defaults to own wallet</param>
+        /// <returns>A dictionary with keys being nftData and value being the nft balance info details</returns>
+        /// <exception cref="Exception">Thrown when there is an issue with the Loopring API, if accountId does not exist</exception>
+        Task<Dictionary<string, Datum>?> GetNftWalletBalanceAsync(int? acccountId = null);
+
+
+        /// <summary>
+        /// Gets the nft holders for a given nftData
+        /// </summary>
+        /// <param name="nftData">The nftData</param>
+        /// <returns>A list of holders for the given nftData</returns>
+        /// <exception cref="Exception">Thrown when there is an issue with the Loopring API</exception>
+        Task<List<NftHolder>?> GetNftHoldersAsync(string nftData);
+
+        /// <summary>
         /// Gets the wallet type
         /// </summary>
         /// <param name="walletAddress">The wallet address in 0x format.</param>
