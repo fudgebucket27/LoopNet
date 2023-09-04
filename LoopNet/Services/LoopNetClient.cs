@@ -748,7 +748,7 @@ namespace LoopNet.Services
             var nftTokenId = nftInfo!.Data![0].TokenId;
 
             OffchainFeeResponse? offchainFee;
-            if (payAccountActivationFee == true)
+            if (payAccountActivationFee == false)
             {
                 offchainFee = await GetOffchainFeeNftTransferAsync(11, "0");
             }
