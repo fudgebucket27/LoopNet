@@ -63,6 +63,13 @@ namespace LoopNet.Services
         Task<MarketsResponse?> GetMarketsAsync();
 
         /// <summary>
+        /// Gets the exchange tokens
+        /// </summary>
+        /// <returns>The exchange tokens</returns>
+        /// <exception cref="Exception">Thrown when there is an issue with the Loopring API</exception>
+        Task<List<ExchangeTokenResponse>?> GetExchangeTokensAsync();
+
+        /// <summary>
         /// Gets account information
         /// </summary>
         /// <param name="owner">The address to retrieve account information from</param>

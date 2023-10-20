@@ -13,6 +13,7 @@ namespace LoopNet.Models.Helpers
         public const string ExchangeAddress = "0x0BABA1Ad5bE3a5C0a66E7ac838a129Bf948f1eA4";
 
         public const string ProductionLoopringApiEndpoint = "https://api3.loopring.io";
+        public const string GetExchangeTokensApiEndpoint = "api/v3/exchange/tokens";
         public const string GetTickersApiEndpoint = "api/v3/ticker";
         public const string GetMarketsApiEndpoint = "api/v3/exchange/markets";
         public const string GetAccountInformationApiEndpoint = "api/v3/account";

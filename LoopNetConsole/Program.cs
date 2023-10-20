@@ -1,4 +1,5 @@
-﻿using LoopNet.Services;
+﻿using LoopNet.Models.Responses;
+using LoopNet.Services;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 
@@ -37,6 +38,8 @@ if (string.IsNullOrEmpty(ethAddress))
 
 var loopNetClient = await LoopNetClient.CreateLoopNetClientAsync(l1PrivateKey, ethAddress, true);
 
+var exchangeTokens = await loopNetClient.GetExchangeTokensAsync();
+Console.WriteLine(JsonConvert.SerializeObject(exchangeTokens, Formatting.Indented));
 
 /*
 var nftBalanceResponse = await loopNetClient.GetNftWalletBalanceAsync(77900);

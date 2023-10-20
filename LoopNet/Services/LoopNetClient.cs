@@ -983,5 +983,20 @@ namespace LoopNet.Services
             return allData;
 
         }
+
+        /// <inheritdoc/>
+        public async Task<List<ExchangeTokenResponse>?> GetExchangeTokensAsync()
+        {
+            var request = new RestRequest(LoopNetConstantsHelper.GetExchangeTokensApiEndpoint);
+            var response = await _loopNetClient.ExecuteGetAsync<List<ExchangeTokenResponse>>(request);
+            if (response.IsSuccessful)
+            {
+                return response.Data;
+            }
+            else
+            {
+                throw new Exception($"Error getting exchange tokens, HTTP Status Code:{response.StatusCode}, Content:{response.Content}");
+            }
+        }
     }
 }
