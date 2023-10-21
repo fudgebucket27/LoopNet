@@ -70,6 +70,14 @@ namespace LoopNet.Services
         Task<List<ExchangeTokenResponse>?> GetExchangeTokensAsync();
 
         /// <summary>
+        /// Gets the order user rate amounts
+        /// </summary>
+        /// <param name="market">The market, ie LRC-ETH</param>
+        /// <returns>The order user rate amounts</returns>
+        /// <exception cref="Exception">Thrown when there is an issue with the Loopring API</exception>
+        Task<OrderUserRateAmountResponse?> GetOrderUserRateAmountAsync(string market);
+
+        /// <summary>
         /// Gets account information
         /// </summary>
         /// <param name="owner">The address to retrieve account information from</param>

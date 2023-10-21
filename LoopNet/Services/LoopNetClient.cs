@@ -1018,5 +1018,22 @@ namespace LoopNet.Services
                 throw new Exception($"Error getting exchange tokens, HTTP Status Code:{response.StatusCode}, Content:{response.Content}");
             }
         }
+
+        /// <inheritdoc/>
+        public async Task<OrderUserRateAmountResponse?> GetOrderUserRateAmountAsync(string market)
+        {
+            var request = new RestRequest(LoopNetConstantsHelper.GetOrderUserRateAmountApiEndpoint);
+            request.AddParameter("accountId", _accountInformation!.AccountId);
+            request.AddParameter("market", market);
+            var response = await _loopNetClient!.ExecuteGetAsync<OrderUserRateAmountResponse>(request);
+            if (response.IsSuccessful)
+            {
+                return response.Data;
+            }
+            else
+            {
+                throw new Exception($"Error getting order user rate amount, HTTP Status Code:{response.StatusCode}, Content:{response.Content}");
+            }
+        }
     }
 }
