@@ -36,7 +36,7 @@ if (string.IsNullOrEmpty(ethAddress))
 }
 #endregion
 
-var loopNetClient = await LoopNetClient.CreateLoopNetClientAsync(1, l1PrivateKey, ethAddress, true);
+var loopNetClient = await LoopNetClient.CreateLoopNetClientAsync(6, l1PrivateKey, ethAddress, true);
 
 var exchangeTokens = await loopNetClient.GetExchangeTokensAsync();
 Console.WriteLine(JsonConvert.SerializeObject(exchangeTokens, Formatting.Indented));

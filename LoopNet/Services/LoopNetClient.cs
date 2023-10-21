@@ -56,7 +56,7 @@ namespace LoopNet.Services
         /// <summary>
         /// Creates an instance of the LoopNet client. This will also generate the Loopring L2 Private Key and retrieve the Loopring API Key.
         /// </summary>
-        /// <param name="chainId">1 for MAINNET, 5 for GOERLI</param>
+        /// <param name="chainId">1 for MAINNET, 5 for Test</param>
         /// <param name="l1PrivateKey">The L1 Private Key</param>
         /// <param name="ethAddress">The Eth address associated with the L1 Private Key in Ox format</param>
         /// <param name="showConnectionInfo">Indicates whether to display the connection info. Optional, defaults to false.</param>
@@ -65,7 +65,7 @@ namespace LoopNet.Services
         {
             if(chainId != 1 && chainId != 5)
             {
-                throw new Exception("Invalid chainId. 1 for MAINNET, 5 for GOERLI");
+                throw new Exception("Invalid chainId. 1 for MAINNET, 5 for TEST");
             }
             var instance = new LoopNetClient(chainId, l1PrivateKey, ethAddress);
             if (showConnectionInfo == true)
@@ -76,7 +76,7 @@ namespace LoopNet.Services
             await instance.GetApiKeyAsync();
             if (showConnectionInfo == true)
             {
-                Console.WriteLine("Connected to Loopring...");
+                Console.WriteLine($"Connected to Loopring... {(chainId ==  1 ? "MAINNET" : "TEST")}");
             }
             return instance;
         }
@@ -100,7 +100,7 @@ namespace LoopNet.Services
             }
             else
             {
-                throw new Exception($"Error getting tickers, HTTP Status Code:{response.StatusCode}, Content:{response.Content}");
+                throw new Exception($"Error getting wallet type, HTTP Status Code:{response.StatusCode}, Content:{response.Content}");
             }
         }
 
