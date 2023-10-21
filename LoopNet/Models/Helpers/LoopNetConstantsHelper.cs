@@ -13,7 +13,7 @@ namespace LoopNet.Models.Helpers
         public const string ProductionExchangeAddress = "0x0BABA1Ad5bE3a5C0a66E7ac838a129Bf948f1eA4";
 
         public const string TestLegacyNftFactoryContract = "0x355E9941C5e301033ecfD37184E78443c5241035";
-        public const string TestCurrentNftFactoryContract = "0x355E9941C5e301033ecfD37184E78443c5241035";
+        public const string TestCurrentNftFactoryContract = "0x0ad87482a1bfd0B3036Bb4b13708C88ACAe1b8bA";
         public const string TestExchangeAddress = "0x12b7cccF30ba360e5041C6Ce239C9a188B709b2B";
 
         public const string ProductionLoopringApiEndpoint = "https://api3.loopring.io";

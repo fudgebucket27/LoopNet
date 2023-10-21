@@ -36,31 +36,31 @@ if (string.IsNullOrEmpty(ethAddress))
 }
 #endregion
 
-var loopNetClient = await LoopNetClient.CreateLoopNetClientAsync(6, l1PrivateKey, ethAddress, true);
+var loopNetClient = await LoopNetClient.CreateLoopNetClientAsync(5, l1PrivateKey, ethAddress, true);
 
-var exchangeTokens = await loopNetClient.GetExchangeTokensAsync();
-Console.WriteLine(JsonConvert.SerializeObject(exchangeTokens, Formatting.Indented));
-
-/*
-var nftBalanceResponse = await loopNetClient.GetNftWalletBalanceAsync(77900);
-Console.WriteLine($"Nft balance: {nftBalanceResponse!.Count}");
-foreach(var nft in nftBalanceResponse)
-{
-    var nftHoldersResponse = await loopNetClient.GetNftHoldersAsync(nft.Key);
-    Console.WriteLine(JsonConvert.SerializeObject(nftHoldersResponse, Formatting.Indented));
-}
-*/
+//var exchangeTokens = await loopNetClient.GetExchangeTokensAsync();
+//Console.WriteLine(JsonConvert.SerializeObject(exchangeTokens, Formatting.Indented));
 
 
-//var postNftTransferResponse = await loopNetClient.PostNftTransferAsync("0x99fdddfdc9277404db0379009274cc98d3688f8b", "0x2a212b36db36d229d3ee5690c7f9fe0099b53d6f05cfb0349060f4c18012a664", 1, "LRC", "clsw loopnet test");
+//var nftBalanceResponse = await loopNetClient.GetNftWalletBalanceAsync(77900);
+//Console.WriteLine($"Nft balance: {nftBalanceResponse!.Count}");
+//foreach(var nft in nftBalanceResponse)
+//{
+//    var nftHoldersResponse = await loopNetClient.GetNftHoldersAsync(nft.Key);
+//    Console.WriteLine(JsonConvert.SerializeObject(nftHoldersResponse, Formatting.Indented));
+//}
+
+
+
+//var postNftTransferResponse = await loopNetClient.PostNftTransferAsync("0x991B6fE54d46e5e0CEEd38911cD4a8694bed386A", "0x2bb8d2ee25543431671e4c02043ab91eaf742e7d21c029a892c762bdf9893408", 1, "LRC", "goerli nft transfer loopnet");
 //Console.WriteLine(JsonConvert.SerializeObject(postNftTransferResponse, Formatting.Indented));
 
 
 //var nftBalanceResponse = await loopNetClient.GetNftTokenIdAsync("0x2a212b36db36d229d3ee5690c7f9fe0099b53d6f05cfb0349060f4c18012a664");
 //Console.WriteLine(JsonConvert.SerializeObject(nftBalanceResponse, Formatting.Indented));
 
-//var postMintNftResponse = await loopNetClient.PostNftMintAsync("0xcef986415766cf34a1d78e2fd8a5bab5f6d02935", "QmYk96iRW6v2p664VqFngzuWD6HDtsr28k9kng238k54cB", 10, 6, "LRC");
-//Console.WriteLine(JsonConvert.SerializeObject(postMintNftResponse, Formatting.Indented));
+var postMintNftResponse = await loopNetClient.PostNftMintAsync("0x3be8d965f75fd82867d88b10a82f633aa1ad474e", "QmYk96iRW6v2p664VqFngzuWD6HDtsr28k9kng238k54cB", 10, 6, "LRC");
+Console.WriteLine(JsonConvert.SerializeObject(postMintNftResponse, Formatting.Indented));
 
 
 //var nftCollectionInfo = await loopNetClient.GetNftCollectionInfoAsync("0x0c589fcd20f99a4a1fe031f50079cfc630015184");

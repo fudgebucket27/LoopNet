@@ -259,7 +259,7 @@ namespace LoopNet.Services
                 feeTokenId = 1;
             }
 
-            var exchangeAddress = LoopNetConstantsHelper.ProductionExchangeAddress;
+            var exchangeAddress = _chainId == 1 ? LoopNetConstantsHelper.ProductionExchangeAddress : LoopNetConstantsHelper.TestExchangeAddress;
             var amount = (tokenAmount * 1000000000000000000m).ToString("0");
             OffchainFeeResponse? offchainFee;
             if (payAccountActivationFee == true)
@@ -326,7 +326,7 @@ namespace LoopNet.Services
                 {
                     Name = "Loopring Protocol",
                     Version = "3.6.0",
-                    ChainId = 1, //1 for mainnet
+                    ChainId = _chainId == 1 ? 1 : 5, //1 for mainnet
                     VerifyingContract = exchangeAddress,
                 },
                 PrimaryType = primaryTypeNameTransfer,
@@ -423,7 +423,7 @@ namespace LoopNet.Services
             var counterFactualNftInfo = new CounterFactualNftInfo
             {
                 NftOwner = _accountInformation!.Owner,
-                NftFactory = LoopNetConstantsHelper.ProductionLegacyNftFactoryContract,
+                NftFactory = _chainId == 1 ? LoopNetConstantsHelper.ProductionLegacyNftFactoryContract : LoopNetConstantsHelper.TestLegacyNftFactoryContract,
                 NftBaseUri = ""
             };
             var feeTokenId = 0;
@@ -471,7 +471,7 @@ namespace LoopNet.Services
             var validUntil = DateTimeOffset.Now.AddDays(30).ToUnixTimeSeconds();
             var nftPoseidonInputs = new BigInteger[]
             {
-                LoopNetUtils.ParseHexUnsigned(LoopNetConstantsHelper.ProductionExchangeAddress),
+                LoopNetUtils.ParseHexUnsigned(_chainId == 1 ? LoopNetConstantsHelper.ProductionExchangeAddress : LoopNetConstantsHelper.TestExchangeAddress),
                 (BigInteger) _accountInformation.AccountId,
                 (BigInteger) _accountInformation.AccountId,
                 nftDataPoseidonHash,
@@ -491,7 +491,7 @@ namespace LoopNet.Services
             var request = new RestRequest(LoopNetConstantsHelper.PostNftMintApiEndpoint);
             request.AddHeader("x-api-key", _apiKey!);
             request.AlwaysMultipartFormData = true;
-            request.AddParameter("exchange", LoopNetConstantsHelper.ProductionExchangeAddress);
+            request.AddParameter("exchange", _chainId == 1 ? LoopNetConstantsHelper.ProductionExchangeAddress : LoopNetConstantsHelper.TestExchangeAddress);
             request.AddParameter("minterId", _accountInformation.AccountId);
             request.AddParameter("minterAddress", _accountInformation.Owner);
             request.AddParameter("toAccountId", _accountInformation.AccountId);
@@ -611,7 +611,7 @@ namespace LoopNet.Services
             CounterFactualNftInfo counterFactualNftInfo = new CounterFactualNftInfo
             {
                 NftOwner = _accountInformation!.Owner,
-                NftFactory = LoopNetConstantsHelper.ProductionCurrentNftFactoryContract,
+                NftFactory = _chainId == 1 ? LoopNetConstantsHelper.ProductionCurrentNftFactoryContract : LoopNetConstantsHelper.TestCurrentNftFactoryContract,
                 NftBaseUri = nftCollectionInfo.Collections[0].Collection!.BaseUri
             };
 
@@ -649,7 +649,7 @@ namespace LoopNet.Services
             var validUntil = DateTimeOffset.Now.AddDays(30).ToUnixTimeSeconds();
             var nftPoseidonInputs = new BigInteger[]
             {
-                LoopNetUtils.ParseHexUnsigned(LoopNetConstantsHelper.ProductionExchangeAddress),
+                LoopNetUtils.ParseHexUnsigned(_chainId == 1 ? LoopNetConstantsHelper.ProductionExchangeAddress : LoopNetConstantsHelper.TestExchangeAddress),
                 (BigInteger) _accountInformation.AccountId,
                 (BigInteger) _accountInformation.AccountId,
                 nftDataPoseidonHash,
@@ -669,7 +669,7 @@ namespace LoopNet.Services
             var request = new RestRequest(LoopNetConstantsHelper.PostNftMintApiEndpoint);
             request.AddHeader("x-api-key", _apiKey!);
             request.AlwaysMultipartFormData = true;
-            request.AddParameter("exchange", LoopNetConstantsHelper.ProductionExchangeAddress);
+            request.AddParameter("exchange", _chainId == 1 ? LoopNetConstantsHelper.ProductionExchangeAddress : LoopNetConstantsHelper.TestExchangeAddress);
             request.AddParameter("minterId", _accountInformation.AccountId);
             request.AddParameter("minterAddress", _accountInformation.Owner);
             request.AddParameter("toAccountId", _accountInformation.AccountId);
@@ -783,7 +783,7 @@ namespace LoopNet.Services
             var validUntil = DateTimeOffset.Now.AddDays(30).ToUnixTimeSeconds();
             var poseidonInputs = new BigInteger[]
             {
-                            LoopNetUtils.ParseHexUnsigned(LoopNetConstantsHelper.ProductionExchangeAddress),
+                            LoopNetUtils.ParseHexUnsigned(_chainId == 1 ? LoopNetConstantsHelper.ProductionExchangeAddress : LoopNetConstantsHelper.TestExchangeAddress),
                             (BigInteger) _accountInformation!.AccountId,
                             (BigInteger) 0,
                             (BigInteger) nftTokenId,
@@ -809,8 +809,8 @@ namespace LoopNet.Services
                 {
                     Name = "Loopring Protocol",
                     Version = "3.6.0",
-                    ChainId = 1,
-                    VerifyingContract = LoopNetConstantsHelper.ProductionExchangeAddress,
+                    ChainId = _chainId == 1 ? 1:5,
+                    VerifyingContract = _chainId == 1 ? LoopNetConstantsHelper.ProductionExchangeAddress : LoopNetConstantsHelper.TestExchangeAddress,
                 },
                 PrimaryType = primaryTypeName,
                 Types = new Dictionary<string, MemberDescription[]>()
@@ -860,7 +860,7 @@ namespace LoopNet.Services
             request.AddHeader("x-api-key", _apiKey!);
             request.AddHeader("x-api-sig", ecdsaSignature);
             request.AlwaysMultipartFormData = true;
-            request.AddParameter("exchange", LoopNetConstantsHelper.ProductionExchangeAddress);
+            request.AddParameter("exchange", _chainId == 1 ? LoopNetConstantsHelper.ProductionExchangeAddress : LoopNetConstantsHelper.TestExchangeAddress);
             request.AddParameter("fromAccountId", _accountInformation.AccountId);
             request.AddParameter("fromAddress", _accountInformation.Owner);
             request.AddParameter("toAccountId", 0);
