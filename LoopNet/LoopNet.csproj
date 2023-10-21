@@ -10,10 +10,10 @@
     <PackageProjectUrl>https://github.com/fudgebucket27/LoopNet</PackageProjectUrl>
     <RepositoryUrl>https://github.com/fudgebucket27/LoopNet</RepositoryUrl>
     <PackageTags>loopring; loopring sdk;</PackageTags>
-    <PackageReleaseNotes>Added support for counterfactual wallets</PackageReleaseNotes>
+    <PackageReleaseNotes>Support for Test Network</PackageReleaseNotes>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <AssemblyVersion></AssemblyVersion>
-    <Version>0.0.7</Version>
+    <Version>0.0.11</Version>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
   </PropertyGroup>
 

@@ -30,7 +30,7 @@ namespace LoopNetTests
             Assert.IsFalse(string.IsNullOrEmpty(_l1PrivateKey), $"The key: 'Loopring:L1PrivateKey' was not found in '{secretsFile}'");
             Assert.IsFalse(string.IsNullOrEmpty(_ethAddress), $"The key: 'Loopring:Address' was not found in '{secretsFile}'");
 
-            _loopNetClient = await LoopNetClient.CreateLoopNetClientAsync(_l1PrivateKey, _ethAddress);
+            _loopNetClient = await LoopNetClient.CreateLoopNetClientAsync(1, _l1PrivateKey, _ethAddress);
         }
         [TestMethod]
         [Description("Get markets")]
