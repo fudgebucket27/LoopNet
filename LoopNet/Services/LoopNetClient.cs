@@ -29,17 +29,26 @@ namespace LoopNet.Services
     /// </summary>
     public class LoopNetClient : ILoopNetClient, IDisposable
     {
-        private protected readonly RestClient _loopNetClient;
+        private protected readonly RestClient? _loopNetClient;
         private protected string? _l1PrivateKey;
         private protected string? _l2PrivateKey;
         private protected string? _ethAddress;
         private protected string? _apiKey;
+        private protected int _chainId;
         private protected AccountInformationResponse? _accountInformation;
         private protected CounterFactualWalletInfoResponse? _counterFactualWalletInfo;
 
-        private LoopNetClient(string l1PrivateKey, string ethAddress)
+        private LoopNetClient(int chainId, string l1PrivateKey, string ethAddress)
         {
-            _loopNetClient = new RestClient(LoopNetConstantsHelper.ProductionLoopringApiEndpoint);
+            _chainId = chainId;
+            if(chainId == 1)
+            {
+                _loopNetClient = new RestClient(LoopNetConstantsHelper.ProductionLoopringApiEndpoint);
+            }
+            else if (chainId == 5)
+            {
+                _loopNetClient = new RestClient(LoopNetConstantsHelper.TestLoopringApiEndpoint);
+            }
             _l1PrivateKey = l1PrivateKey;
             _ethAddress = ethAddress;
         }
@@ -47,18 +56,28 @@ namespace LoopNet.Services
         /// <summary>
         /// Creates an instance of the LoopNet client. This will also generate the Loopring L2 Private Key and retrieve the Loopring API Key.
         /// </summary>
+        /// <param name="chainId">1 for MAINNET, 5 for Test</param>
         /// <param name="l1PrivateKey">The L1 Private Key</param>
         /// <param name="ethAddress">The Eth address associated with the L1 Private Key in Ox format</param>
         /// <param name="showConnectionInfo">Indicates whether to display the connection info. Optional, defaults to false.</param>
         /// <returns>A LoopNetClient</returns>
-        public static async Task<LoopNetClient> CreateLoopNetClientAsync(string l1PrivateKey, string ethAddress, bool showConnectionInfo = false)
+        public static async Task<LoopNetClient> CreateLoopNetClientAsync(int chainId, string l1PrivateKey, string ethAddress, bool showConnectionInfo = false)
         {
-            var instance = new LoopNetClient(l1PrivateKey, ethAddress);
+            if(chainId != 1 && chainId != 5)
+            {
+                throw new Exception("Invalid chainId. 1 for MAINNET, 5 for TEST");
+            }
+            var instance = new LoopNetClient(chainId, l1PrivateKey, ethAddress);
             if (showConnectionInfo == true)
+            {
                 Console.WriteLine("Connecting to Loopring...");
+            }
+
             await instance.GetApiKeyAsync();
             if (showConnectionInfo == true)
-                Console.WriteLine("Connected to Loopring...");
+            {
+                Console.WriteLine($"Connected to Loopring... {(chainId ==  1 ? "MAINNET" : "TEST")}");
+            }
             return instance;
         }
 
@@ -74,14 +93,14 @@ namespace LoopNet.Services
             var request = new RestRequest("api/wallet/v3/wallet/type");
             //request.AddHeader("x-api-key", apiKey);
             request.AddParameter("wallet", walletAddress);
-            var response = await _loopNetClient.ExecuteGetAsync<WalletTypeResponse>(request);
+            var response = await _loopNetClient!.ExecuteGetAsync<WalletTypeResponse>(request);
             if (response.IsSuccessful)
             {
                 return response.Data;
             }
             else
             {
-                throw new Exception($"Error getting tickers, HTTP Status Code:{response.StatusCode}, Content:{response.Content}");
+                throw new Exception($"Error getting wallet type, HTTP Status Code:{response.StatusCode}, Content:{response.Content}");
             }
         }
 
@@ -90,7 +109,7 @@ namespace LoopNet.Services
         {
             var request = new RestRequest(LoopNetConstantsHelper.GetTickersApiEndpoint);
             request.AddParameter("market", pairs);
-            var response = await _loopNetClient.ExecuteGetAsync<TickersResponse>(request);
+            var response = await _loopNetClient!.ExecuteGetAsync<TickersResponse>(request);
             if (response.IsSuccessful)
             {
                 return response.Data;
@@ -105,7 +124,7 @@ namespace LoopNet.Services
         public async Task<MarketsResponse?> GetMarketsAsync()
         {
             var request = new RestRequest(LoopNetConstantsHelper.GetMarketsApiEndpoint);
-            var response = await _loopNetClient.ExecuteGetAsync<MarketsResponse>(request);
+            var response = await _loopNetClient!.ExecuteGetAsync<MarketsResponse>(request);
             if (response.IsSuccessful)
             {
                 return response.Data;
@@ -121,7 +140,7 @@ namespace LoopNet.Services
         {
             var request = new RestRequest(LoopNetConstantsHelper.GetAccountInformationApiEndpoint);
             request.AddParameter("owner", owner);
-            var response = await _loopNetClient.ExecuteGetAsync<AccountInformationResponse>(request);
+            var response = await _loopNetClient!.ExecuteGetAsync<AccountInformationResponse>(request);
             if (response.IsSuccessful)
             {
                 return response.Data;
@@ -144,13 +163,13 @@ namespace LoopNet.Services
             _counterFactualWalletInfo = await GetWalletCounterFactualInfoAsync(_accountInformation!.AccountId);
             if (string.IsNullOrEmpty(_accountInformation?.KeySeed))
             {
-                _accountInformation!.KeySeed = $"Sign this message to access Loopring Exchange: 0x0BABA1Ad5bE3a5C0a66E7ac838a129Bf948f1eA4 with key nonce: {_accountInformation.KeyNonce - 1}";
+                _accountInformation!.KeySeed = $"Sign this message to access Loopring Exchange: {(_chainId == 1 ? LoopNetConstantsHelper.ProductionLoopringApiEndpoint : LoopNetConstantsHelper.TestExchangeAddress)} with key nonce: {_accountInformation.KeyNonce - 1}";
             }
             var messageToSign = _accountInformation?.KeySeed;
             int accountId = _accountInformation!.AccountId;
 
             var skipPublicKeyCalculation = false; //set to false to generate the public key details as well, set to true to skip public key generation which makes it run faster
-
+             
             var signer = new EthereumMessageSigner();
             var signedMessageECDSA = signer.EncodeUTF8AndSign(messageToSign, new EthECKey(_l1PrivateKey));
             if (walletType!.Data!.IsContract == true || walletType!.Data!.IsInCounterFactualStatus == true)
@@ -160,7 +179,8 @@ namespace LoopNet.Services
             var (secretKey, ethAddress, publicKeyX, publicKeyY) = LoopringL2KeyGenerator.GenerateL2KeyDetails(signedMessageECDSA, _ethAddress, skipPublicKeyCalculation);
 
             //Generating the x-api-sig header details for the get loopring api key endpoint
-            var apiSignatureBase = "GET&https%3A%2F%2Fapi3.loopring.io%2Fapi%2Fv3%2FapiKey&accountId%3D" + accountId;
+            var apiSignatureEndpoint = _chainId == 1 ? "GET&https%3A%2F%2Fapi3.loopring.io%2Fapi%2Fv3%2FapiKey&accountId%3D" : "GET&https%3A%2F%2Fuat2.loopring.io%2Fapi%2Fv3%2FapiKey&accountId%3D";
+            var apiSignatureBase = apiSignatureEndpoint + accountId;
             var apiSignatureBaseBigInteger = SHA256Helper.CalculateSHA256HashNumber(apiSignatureBase);
             var eddsa = new Eddsa(apiSignatureBaseBigInteger, secretKey);
             var xApiSig = eddsa.Sign();
@@ -168,12 +188,12 @@ namespace LoopNet.Services
             var request = new RestRequest(LoopNetConstantsHelper.GetApiKeyApiEndpoint);
             request.AddHeader("X-API-SIG", xApiSig);
             request.AddParameter("accountId", accountId);
-            var response = await _loopNetClient.ExecuteGetAsync<ApiKeyResponse>(request);
+            var response = await _loopNetClient!.ExecuteGetAsync<ApiKeyResponse>(request);
             if (response.IsSuccessful)
             {
                 _l2PrivateKey = secretKey;
                 _apiKey = response.Data!.ApiKey;
-                _loopNetClient.AddDefaultHeader("X-API-KEY", _apiKey!);
+                _loopNetClient!.AddDefaultHeader("X-API-KEY", _apiKey!);
             }
             else
             {
@@ -188,7 +208,7 @@ namespace LoopNet.Services
             request.AddHeader("X-API-KEY", _apiKey!);
             request.AddParameter("accountId", _accountInformation!.AccountId);
             request.AddParameter("sellTokenId", sellTokenId);
-            var response = await _loopNetClient.ExecuteGetAsync<StorageIdResponse>(request);
+            var response = await _loopNetClient!.ExecuteGetAsync<StorageIdResponse>(request);
             if (response.IsSuccessful)
             {
                 return response.Data;
@@ -208,7 +228,7 @@ namespace LoopNet.Services
             request.AddParameter("requestType", requestType);
             request.AddParameter("tokenSymbol", feeToken);
             request.AddParameter("amount", amount);
-            var response = await _loopNetClient.ExecuteGetAsync<OffchainFeeResponse>(request);
+            var response = await _loopNetClient!.ExecuteGetAsync<OffchainFeeResponse>(request);
             if (response.IsSuccessful)
             {
                 return response.Data;
@@ -239,7 +259,7 @@ namespace LoopNet.Services
                 feeTokenId = 1;
             }
 
-            var exchangeAddress = LoopNetConstantsHelper.ExchangeAddress;
+            var exchangeAddress = _chainId == 1 ? LoopNetConstantsHelper.ProductionExchangeAddress : LoopNetConstantsHelper.TestExchangeAddress;
             var amount = (tokenAmount * 1000000000000000000m).ToString("0");
             OffchainFeeResponse? offchainFee;
             if (payAccountActivationFee == true)
@@ -306,7 +326,7 @@ namespace LoopNet.Services
                 {
                     Name = "Loopring Protocol",
                     Version = "3.6.0",
-                    ChainId = 1, //1 for mainnet
+                    ChainId = _chainId == 1 ? 1 : 5, //1 for mainnet
                     VerifyingContract = exchangeAddress,
                 },
                 PrimaryType = primaryTypeNameTransfer,
@@ -386,7 +406,7 @@ namespace LoopNet.Services
                 request.AddParameter("payPayeeUpdateAccount", "true");
             }
 
-            var response = await _loopNetClient.ExecutePostAsync<TransferTokenResponse>(request);
+            var response = await _loopNetClient!.ExecutePostAsync<TransferTokenResponse>(request);
             if (response.IsSuccessful)
             {
                 return response.Data;
@@ -403,7 +423,7 @@ namespace LoopNet.Services
             var counterFactualNftInfo = new CounterFactualNftInfo
             {
                 NftOwner = _accountInformation!.Owner,
-                NftFactory = LoopNetConstantsHelper.LegacyNftFactoryContract,
+                NftFactory = _chainId == 1 ? LoopNetConstantsHelper.ProductionLegacyNftFactoryContract : LoopNetConstantsHelper.TestLegacyNftFactoryContract,
                 NftBaseUri = ""
             };
             var feeTokenId = 0;
@@ -451,7 +471,7 @@ namespace LoopNet.Services
             var validUntil = DateTimeOffset.Now.AddDays(30).ToUnixTimeSeconds();
             var nftPoseidonInputs = new BigInteger[]
             {
-                LoopNetUtils.ParseHexUnsigned(LoopNetConstantsHelper.ExchangeAddress),
+                LoopNetUtils.ParseHexUnsigned(_chainId == 1 ? LoopNetConstantsHelper.ProductionExchangeAddress : LoopNetConstantsHelper.TestExchangeAddress),
                 (BigInteger) _accountInformation.AccountId,
                 (BigInteger) _accountInformation.AccountId,
                 nftDataPoseidonHash,
@@ -471,7 +491,7 @@ namespace LoopNet.Services
             var request = new RestRequest(LoopNetConstantsHelper.PostNftMintApiEndpoint);
             request.AddHeader("x-api-key", _apiKey!);
             request.AlwaysMultipartFormData = true;
-            request.AddParameter("exchange", LoopNetConstantsHelper.ExchangeAddress);
+            request.AddParameter("exchange", _chainId == 1 ? LoopNetConstantsHelper.ProductionExchangeAddress : LoopNetConstantsHelper.TestExchangeAddress);
             request.AddParameter("minterId", _accountInformation.AccountId);
             request.AddParameter("minterAddress", _accountInformation.Owner);
             request.AddParameter("toAccountId", _accountInformation.AccountId);
@@ -498,7 +518,7 @@ namespace LoopNet.Services
             request.AddParameter("counterFactualNftInfo.nftOwner", counterFactualNftInfo.NftOwner);
             request.AddParameter("counterFactualNftInfo.nftBaseUri", counterFactualNftInfo.NftBaseUri);
             request.AddParameter("eddsaSignature", eddsaSignature);
-            var response = await _loopNetClient.ExecutePostAsync<PostNftMintResponse>(request);
+            var response = await _loopNetClient!.ExecutePostAsync<PostNftMintResponse>(request);
             if (response.IsSuccessful)
             {
                 return response.Data;
@@ -517,7 +537,7 @@ namespace LoopNet.Services
             request.AddParameter("accountId", _accountInformation!.AccountId);
             request.AddParameter("requestType", requestType);
             request.AddParameter("tokenAddress", tokenAddress);
-            var response = await _loopNetClient.ExecuteGetAsync<OffchainFeeResponse>(request);
+            var response = await _loopNetClient!.ExecuteGetAsync<OffchainFeeResponse>(request);
             if (response.IsSuccessful)
             {
                 return response.Data;
@@ -536,7 +556,7 @@ namespace LoopNet.Services
             request.AddParameter("accountId", _accountInformation!.AccountId);
             request.AddParameter("requestType", requestType);
             request.AddParameter("amount", amount);
-            var response = await _loopNetClient.ExecuteGetAsync<OffchainFeeResponse>(request);
+            var response = await _loopNetClient!.ExecuteGetAsync<OffchainFeeResponse>(request);
             if (response.IsSuccessful)
             {
                 return response.Data;
@@ -556,7 +576,7 @@ namespace LoopNet.Services
             request.AddParameter("nftOwner", counterFactualNftInfo.NftOwner);
             request.AddParameter("nftBaseUri", counterFactualNftInfo.NftBaseUri);
 
-            var response = await _loopNetClient.ExecuteGetAsync<CounterFactualNft>(request);
+            var response = await _loopNetClient!.ExecuteGetAsync<CounterFactualNft>(request);
             if (response.IsSuccessful)
             {
                 return response.Data;
@@ -591,7 +611,7 @@ namespace LoopNet.Services
             CounterFactualNftInfo counterFactualNftInfo = new CounterFactualNftInfo
             {
                 NftOwner = _accountInformation!.Owner,
-                NftFactory = LoopNetConstantsHelper.CurrentNftFactoryContract,
+                NftFactory = _chainId == 1 ? LoopNetConstantsHelper.ProductionCurrentNftFactoryContract : LoopNetConstantsHelper.TestCurrentNftFactoryContract,
                 NftBaseUri = nftCollectionInfo.Collections[0].Collection!.BaseUri
             };
 
@@ -629,7 +649,7 @@ namespace LoopNet.Services
             var validUntil = DateTimeOffset.Now.AddDays(30).ToUnixTimeSeconds();
             var nftPoseidonInputs = new BigInteger[]
             {
-                LoopNetUtils.ParseHexUnsigned(LoopNetConstantsHelper.ExchangeAddress),
+                LoopNetUtils.ParseHexUnsigned(_chainId == 1 ? LoopNetConstantsHelper.ProductionExchangeAddress : LoopNetConstantsHelper.TestExchangeAddress),
                 (BigInteger) _accountInformation.AccountId,
                 (BigInteger) _accountInformation.AccountId,
                 nftDataPoseidonHash,
@@ -649,7 +669,7 @@ namespace LoopNet.Services
             var request = new RestRequest(LoopNetConstantsHelper.PostNftMintApiEndpoint);
             request.AddHeader("x-api-key", _apiKey!);
             request.AlwaysMultipartFormData = true;
-            request.AddParameter("exchange", LoopNetConstantsHelper.ExchangeAddress);
+            request.AddParameter("exchange", _chainId == 1 ? LoopNetConstantsHelper.ProductionExchangeAddress : LoopNetConstantsHelper.TestExchangeAddress);
             request.AddParameter("minterId", _accountInformation.AccountId);
             request.AddParameter("minterAddress", _accountInformation.Owner);
             request.AddParameter("toAccountId", _accountInformation.AccountId);
@@ -676,7 +696,7 @@ namespace LoopNet.Services
             request.AddParameter("counterFactualNftInfo.nftOwner", counterFactualNftInfo.NftOwner);
             request.AddParameter("counterFactualNftInfo.nftBaseUri", counterFactualNftInfo.NftBaseUri);
             request.AddParameter("eddsaSignature", eddsaSignature);
-            var response = await _loopNetClient.ExecutePostAsync<PostNftMintResponse>(request);
+            var response = await _loopNetClient!.ExecutePostAsync<PostNftMintResponse>(request);
             if (response.IsSuccessful)
             {
                 return response.Data;
@@ -696,7 +716,7 @@ namespace LoopNet.Services
             request.AddParameter("offset", 0);
             request.AddParameter("owner", _accountInformation!.Owner);
             request.AddParameter("tokenAddress", tokenAddress);
-            var response = await _loopNetClient.ExecuteGetAsync<GetNftCollectionInfoResponse>(request);
+            var response = await _loopNetClient!.ExecuteGetAsync<GetNftCollectionInfoResponse>(request);
             if (response.IsSuccessful)
             {
                 return response.Data;
@@ -715,7 +735,7 @@ namespace LoopNet.Services
             request.AddParameter("accountId", _accountInformation!.AccountId);
             request.AddParameter("nftDatas", nftData);
             request.AddParameter("metadata", "true");
-            var response = await _loopNetClient.ExecuteGetAsync<NftBalanceResponse>(request);
+            var response = await _loopNetClient!.ExecuteGetAsync<NftBalanceResponse>(request);
             if (response.IsSuccessful)
             {
                 return response.Data;
@@ -763,7 +783,7 @@ namespace LoopNet.Services
             var validUntil = DateTimeOffset.Now.AddDays(30).ToUnixTimeSeconds();
             var poseidonInputs = new BigInteger[]
             {
-                            LoopNetUtils.ParseHexUnsigned(LoopNetConstantsHelper.ExchangeAddress),
+                            LoopNetUtils.ParseHexUnsigned(_chainId == 1 ? LoopNetConstantsHelper.ProductionExchangeAddress : LoopNetConstantsHelper.TestExchangeAddress),
                             (BigInteger) _accountInformation!.AccountId,
                             (BigInteger) 0,
                             (BigInteger) nftTokenId,
@@ -789,8 +809,8 @@ namespace LoopNet.Services
                 {
                     Name = "Loopring Protocol",
                     Version = "3.6.0",
-                    ChainId = 1,
-                    VerifyingContract = LoopNetConstantsHelper.ExchangeAddress,
+                    ChainId = _chainId == 1 ? 1:5,
+                    VerifyingContract = _chainId == 1 ? LoopNetConstantsHelper.ProductionExchangeAddress : LoopNetConstantsHelper.TestExchangeAddress,
                 },
                 PrimaryType = primaryTypeName,
                 Types = new Dictionary<string, MemberDescription[]>()
@@ -840,7 +860,7 @@ namespace LoopNet.Services
             request.AddHeader("x-api-key", _apiKey!);
             request.AddHeader("x-api-sig", ecdsaSignature);
             request.AlwaysMultipartFormData = true;
-            request.AddParameter("exchange", LoopNetConstantsHelper.ExchangeAddress);
+            request.AddParameter("exchange", _chainId == 1 ? LoopNetConstantsHelper.ProductionExchangeAddress : LoopNetConstantsHelper.TestExchangeAddress);
             request.AddParameter("fromAccountId", _accountInformation.AccountId);
             request.AddParameter("fromAddress", _accountInformation.Owner);
             request.AddParameter("toAccountId", 0);
@@ -870,7 +890,7 @@ namespace LoopNet.Services
             {
                 request.AddParameter("payPayeeUpdateAccount", "true");
             }
-            var response = await _loopNetClient.ExecutePostAsync<TransferTokenResponse>(request);
+            var response = await _loopNetClient!.ExecutePostAsync<TransferTokenResponse>(request);
             if (response.IsSuccessful)
             {
                 return response.Data;
@@ -886,7 +906,7 @@ namespace LoopNet.Services
         {
             var request = new RestRequest(LoopNetConstantsHelper.GetWalletCounterfactualInfoApiEndpoint);
             request.AddParameter("accountId", accountId);
-            var response = await _loopNetClient.ExecuteGetAsync<CounterFactualWalletInfoResponse>(request);
+            var response = await _loopNetClient!.ExecuteGetAsync<CounterFactualWalletInfoResponse>(request);
             if (response.IsSuccessful)
             {
                 return response.Data;
@@ -912,7 +932,7 @@ namespace LoopNet.Services
                 request.AddParameter("limit", limit);
                 request.AddParameter("offset", offset);
 
-                var response = await _loopNetClient.ExecuteGetAsync<NftBalanceResponse>(request);
+                var response = await _loopNetClient!.ExecuteGetAsync<NftBalanceResponse>(request);
                 if (!response.IsSuccessful)
                 {
                     throw new Exception($"Error getting nft wallet balance, HTTP Status Code:{response.StatusCode}, Content:{response.Content}");
@@ -959,7 +979,7 @@ namespace LoopNet.Services
                 request.AddParameter("limit", limit);
                 request.AddParameter("offset", offset);
 
-                var response = await _loopNetClient.ExecuteGetAsync<NftHoldersResponse>(request);
+                var response = await _loopNetClient!.ExecuteGetAsync<NftHoldersResponse>(request);
                 if(!response.IsSuccessful)
                 {
                     throw new Exception($"Error getting nft holders for the given nftData, HTTP Status Code:{response.StatusCode}, Content:{response.Content}");
@@ -982,6 +1002,21 @@ namespace LoopNet.Services
 
             return allData;
 
+        }
+
+        /// <inheritdoc/>
+        public async Task<List<ExchangeTokenResponse>?> GetExchangeTokensAsync()
+        {
+            var request = new RestRequest(LoopNetConstantsHelper.GetExchangeTokensApiEndpoint);
+            var response = await _loopNetClient!.ExecuteGetAsync<List<ExchangeTokenResponse>>(request);
+            if (response.IsSuccessful)
+            {
+                return response.Data;
+            }
+            else
+            {
+                throw new Exception($"Error getting exchange tokens, HTTP Status Code:{response.StatusCode}, Content:{response.Content}");
+            }
         }
     }
 }
