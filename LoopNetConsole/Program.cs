@@ -1,8 +1,10 @@
-﻿using LoopNet.Models.Requests;
+﻿using LoopNet.Models.Helpers;
+using LoopNet.Models.Requests;
 using LoopNet.Models.Responses;
 using LoopNet.Services;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using System.Numerics;
 
 
 #region Setup secrets
@@ -38,26 +40,26 @@ if (string.IsNullOrEmpty(ethAddress))
 #endregion
 
 var loopNetClient = await LoopNetClient.CreateLoopNetClientAsync(5, l1PrivateKey, ethAddress, true);
-//var postMintNftResponse = await loopNetClient.PostNftMintAsync("0x218b4566b14cd8a7f8288601dc285b9e18d1785b", "QmZynjR5a3754EFdtpoZz6rzCvDWtz8q3fJMM9uiKAaLW7", 10, 6, "LRC");
-//var tokenTransferResponse = await loopNetClient.PostTokenTransferAsync("0x991B6fE54d46e5e0CEEd38911cD4a8694bed386A", "LRC", 0.01m, "LRC", "LoopNet test");
 
+
+//How to do a simple ERC20 trade
+var tokens = await loopNetClient.GetExchangeTokensAsync();
+var lrcToken = tokens.Where(x => x.Symbol == "LRC").First();
+var ethToken = tokens.Where(x => x.Symbol == "ETH").First();
+decimal ethValue = LoopNetUtils.MultiplyByPowerOfTen(0.05m, ethToken.Decimals);
+decimal lrcValue = LoopNetUtils.MultiplyByPowerOfTen(300m, lrcToken.Decimals);
 var tradeResult = await loopNetClient.PostOrderAsync(
-        sellToken: new Token() { TokenId = 0, /*ETH*/ Volume = "3000000000000000" /* 0.03 ETH */  },
-        buyToken: new Token() { TokenId = 1, /*LRC*/ Volume = "80000000000000000000" /* 1000 LRC */ },
-        allOrNone: false,
+        buyToken: new Token() { TokenId = ethToken.TokenId, /*ETH*/ Volume = ethValue.ToString("F0") }, //the token to buy
+        sellToken: new Token() { TokenId = lrcToken.TokenId, /*LRC*/ Volume = lrcValue.ToString("F0") }, //the token to sell
+        allOrNone: false, //only false is supported for now
         fillAmountBOrS: false,
-        validUntil: 1700000000, // Will expire eventually...
+        validUntil: 1800000000, // Unix timestamp for order expiry..
         maxFeeBips: 63,
         clientOrderId: null,
         orderType: OrderType.TAKER_ONLY,
         tradeChannel: TradeChannel.MIXED
     );
 Console.WriteLine(JsonConvert.SerializeObject(tradeResult));
-
-
-
-
-
 
 
 //var nftBalanceResponse = await loopNetClient.GetNftWalletBalanceAsync(77900);
@@ -85,6 +87,6 @@ Console.WriteLine(JsonConvert.SerializeObject(tradeResult));
 //var postLegacyNftMintResponse = await loopNetClient.PostLegacyMintNft("QmZynjR5a3754EFdtpoZz6rzCvDWtz8q3fJMM9uiKAaLW7", 10, 6, "LRC");
 ////Console.WriteLine(JsonConvert.SerializeObject(postLegacyNftMintResponse, Formatting.Indented));
 
-//var tokenTransferResponse = await loopNetClient.PostTokenTransferAsync("0x991B6fE54d46e5e0CEEd38911cD4a8694bed386A", "LRC", 0.01m, "LRC", "LoopNet test"); //You probably want to comment this out or change the address to transfer to.....
+//var tokenTransferResponse = await loopNetClient.PostTokenTransferAsync("0x991B6fE54d46e5e0CEEd38911cD4a8694bed386A", "LRC", 0.01m, "LRC", "LoopNet test");
 //Console.WriteLine(JsonConvert.SerializeObject(tokenTransferResponse, Formatting.Indented));
 
