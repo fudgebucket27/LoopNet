@@ -21,6 +21,7 @@ namespace LoopNet.Models.Helpers
         public const string GetExchangeTokensApiEndpoint = "api/v3/exchange/tokens";
         public const string GetTickersApiEndpoint = "api/v3/ticker";
         public const string GetMarketsApiEndpoint = "api/v3/exchange/markets";
+        public const string GetOrderUserRateAmountApiEndpoint = "api/v3/user/orderUserRateAmount";
         public const string GetAccountInformationApiEndpoint = "api/v3/account";
         public const string GetApiKeyApiEndpoint = "api/v3/apiKey";
         public const string GetStoragIdApiEndpoint = "api/v3/storageId";
@@ -35,6 +36,7 @@ namespace LoopNet.Models.Helpers
         public const string PostTokenTransferApiEndpoint = "api/v3/transfer";
         public const string PostNftMintApiEndpoint = "api/v3/nft/mint";
         public const string PostNftTransferApiEndpoint = "api/v3/nft/transfer";
+        public const string PostOrderApiEndpoint = "api/v3/order";
 
 
     }
