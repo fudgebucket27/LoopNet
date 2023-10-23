@@ -1,4 +1,5 @@
-﻿using LoopNet.Models.Responses;
+﻿using LoopNet.Models.Requests;
+using LoopNet.Models.Responses;
 using LoopNet.Services;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
@@ -40,17 +41,23 @@ var loopNetClient = await LoopNetClient.CreateLoopNetClientAsync(5, l1PrivateKey
 //var postMintNftResponse = await loopNetClient.PostNftMintAsync("0x218b4566b14cd8a7f8288601dc285b9e18d1785b", "QmZynjR5a3754EFdtpoZz6rzCvDWtz8q3fJMM9uiKAaLW7", 10, 6, "LRC");
 //var tokenTransferResponse = await loopNetClient.PostTokenTransferAsync("0x991B6fE54d46e5e0CEEd38911cD4a8694bed386A", "LRC", 0.01m, "LRC", "LoopNet test");
 
+var tradeResult = await loopNetClient.PostOrderAsync(
+        sellToken: new Token() { TokenId = 0, /*ETH*/ Volume = "3000000000000000" /* 0.03 ETH */  },
+        buyToken: new Token() { TokenId = 1, /*LRC*/ Volume = "80000000000000000000" /* 1000 LRC */ },
+        allOrNone: false,
+        fillAmountBOrS: false,
+        validUntil: 1700000000, // Will expire eventually...
+        maxFeeBips: 63,
+        clientOrderId: null,
+        orderType: OrderType.TAKER_ONLY,
+        tradeChannel: TradeChannel.MIXED
+    );
+Console.WriteLine(JsonConvert.SerializeObject(tradeResult));
 
-var exchangeTokens = await loopNetClient.GetExchangeTokensAsync();
-var minTokenLRC = exchangeTokens.First(x => x.Symbol == "LRC").OrderAmounts.Minimum; //any mount less than minimum can't be traded
-var minTokenETH = exchangeTokens.First(x => x.Symbol == "ETH").OrderAmounts.Minimum; //any mount less than minimum can't be traded
-Console.WriteLine($"Min LRC: {minTokenLRC}");
-Console.WriteLine($"Min ETH: {minTokenETH}");
-var orderUserRateAmountResponse = await loopNetClient.GetOrderUserRateAmountAsync("LRC-ETH");
-var tradeCostLRC = orderUserRateAmountResponse.Amounts[0].TradeCost;
-var tradeCostETH = orderUserRateAmountResponse.Amounts[1].TradeCost;
-Console.WriteLine($"Trade cost LRC: {tradeCostLRC}");
-Console.WriteLine($"Trade cost ETH: {tradeCostETH}");
+
+
+
+
 
 
 //var nftBalanceResponse = await loopNetClient.GetNftWalletBalanceAsync(77900);

@@ -1035,5 +1035,72 @@ namespace LoopNet.Services
                 throw new Exception($"Error getting order user rate amount, HTTP Status Code:{response.StatusCode}, Content:{response.Content}");
             }
         }
+
+        public async Task<OrderResponse?> PostOrderAsync(Token sellToken, Token buyToken, bool allOrNone, bool fillAmountBOrS, int validUntil, int maxFeeBips = 20, string? clientOrderId = null, OrderType? orderType = null, TradeChannel? tradeChannel = null, string? taker = null, string? poolAddress = null, string? affiliate = null)
+        {
+            var order = new Order()
+            {
+                Exchange = _chainId == 1 ? LoopNetConstantsHelper.ProductionExchangeAddress : LoopNetConstantsHelper.TestExchangeAddress,
+                AccountId =  _accountInformation!.AccountId,
+                StorageId = (await GetStorageIdAsync(sellToken.TokenId))!.OrderId, // MAYBE? NOT SURE
+                SellToken = sellToken,
+                BuyToken = buyToken,
+                AllOrNone = allOrNone,
+                FillAmountBOrS = fillAmountBOrS,
+                ValidUntil = validUntil,
+                MaxFeeBips = maxFeeBips,
+            };
+            if (!string.IsNullOrWhiteSpace(clientOrderId))
+                order.ClientOrderId = clientOrderId;
+            if (orderType.HasValue)
+                order.OrderType = orderType.Value.ToString();
+            if (tradeChannel.HasValue)
+                order.TradeChannel = tradeChannel.Value.ToString();
+            if (!string.IsNullOrWhiteSpace(taker))
+                order.Taker = taker;
+            if (!string.IsNullOrWhiteSpace(poolAddress))
+                order.PoolAddress = poolAddress;
+            if (!string.IsNullOrWhiteSpace(affiliate))
+                order.Affiliate = affiliate;
+
+
+            BigInteger[] inputs = {
+                LoopNetUtils.ParseHexUnsigned(order.Exchange),
+                order.StorageId,
+                order.AccountId,
+                order.SellToken.TokenId,
+                order.BuyToken.TokenId,
+                BigInteger.Parse(order.SellToken.Volume!),
+                BigInteger.Parse(order.BuyToken.Volume!),
+                order.ValidUntil,
+                order.MaxFeeBips,
+                (fillAmountBOrS ? 1 : 0),
+                string.IsNullOrWhiteSpace(order.Taker) ? 0 : LoopNetUtils.ParseHexUnsigned(order.Taker)
+            };
+
+            var poseidonHasher = new Poseidon(inputs.Length + 1, 6, 53, "poseidon", 5, _securityTarget: 128);
+            var poseidonHash = poseidonHasher.CalculatePoseidonHash(inputs);
+            var poseidonEddsa = new Eddsa(poseidonHash, _l2PrivateKey);
+            var eddsaSignature = poseidonEddsa.Sign();
+            order.EddsaSignature = eddsaSignature;
+
+            var request = new RestRequest(LoopNetConstantsHelper.PostOrderApiEndpoint);
+            request.AddHeader("Content-Type", "application/json");
+            string serializedOrder = JsonConvert.SerializeObject(order);
+
+            // Add the serialized string as raw JSON content
+            request.AddParameter("application/json", serializedOrder, ParameterType.RequestBody);
+
+            var response = await _loopNetClient!.ExecutePostAsync<OrderResponse>(request);
+            if (response.IsSuccessful)
+            {
+                return response.Data;
+            }
+            else
+            {
+                throw new Exception($"Error posting order, HTTP Status Code:{response.StatusCode}, Content:{response.Content}");
+            }
+
+        }
     }
 }
