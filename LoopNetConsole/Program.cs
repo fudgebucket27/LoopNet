@@ -44,7 +44,7 @@ var loopNetClient = await LoopNetClient.CreateLoopNetClientAsync(1, l1PrivateKey
 ////How to do a simple ERC20 trade ETH -> LRC
 //var tokens = await loopNetClient.GetExchangeTokensAsync();
 //var lrcToken = tokens!.Where(x => x.Symbol == "LRC").First();
-//var ethToken = tokens.Where(x => x.Symbol == "ETH").First();
+//var ethToken = tokens!.Where(x => x.Symbol == "ETH").First();
 //var ethSellVolume = LoopNetUtils.CalculateTokenVolume(0.038252m, ethToken.Decimals); //0.038252 ETH
 //var lrcBuyVolume = LoopNetUtils.CalculateTokenVolume(368m, lrcToken.Decimals); //368 LRC
 //var tradeResult = await loopNetClient.PostOrderAsync(
