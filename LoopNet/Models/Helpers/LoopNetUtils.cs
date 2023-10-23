@@ -18,7 +18,7 @@ namespace LoopNet.Models.Helpers
             return parsResult;
         }
 
-        public static decimal MultiplyByPowerOfTen(decimal value, int power)
+        public static string MultiplyByPowerOfTen(decimal value, int power)
         {
             if (power < 0)
             {
@@ -30,7 +30,7 @@ namespace LoopNet.Models.Helpers
                 value *= 10m;
             }
 
-            return value;
+            return value.ToString("F0");
         }
     }
 }

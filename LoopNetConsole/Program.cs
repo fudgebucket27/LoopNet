@@ -39,27 +39,27 @@ if (string.IsNullOrEmpty(ethAddress))
 }
 #endregion
 
-var loopNetClient = await LoopNetClient.CreateLoopNetClientAsync(5, l1PrivateKey, ethAddress, true);
+var loopNetClient = await LoopNetClient.CreateLoopNetClientAsync(1, l1PrivateKey, ethAddress, true);
 
 
-//How to do a simple ERC20 trade
-var tokens = await loopNetClient.GetExchangeTokensAsync();
-var lrcToken = tokens.Where(x => x.Symbol == "LRC").First();
-var ethToken = tokens.Where(x => x.Symbol == "ETH").First();
-decimal ethValue = LoopNetUtils.MultiplyByPowerOfTen(0.05m, ethToken.Decimals);
-decimal lrcValue = LoopNetUtils.MultiplyByPowerOfTen(300m, lrcToken.Decimals);
-var tradeResult = await loopNetClient.PostOrderAsync(
-        buyToken: new Token() { TokenId = ethToken.TokenId, /*ETH*/ Volume = ethValue.ToString("F0") }, //the token to buy
-        sellToken: new Token() { TokenId = lrcToken.TokenId, /*LRC*/ Volume = lrcValue.ToString("F0") }, //the token to sell
-        allOrNone: false, //only false is supported for now
-        fillAmountBOrS: false,
-        validUntil: 1800000000, // Unix timestamp for order expiry..
-        maxFeeBips: 63,
-        clientOrderId: null,
-        orderType: OrderType.TAKER_ONLY,
-        tradeChannel: TradeChannel.MIXED
-    );
-Console.WriteLine(JsonConvert.SerializeObject(tradeResult));
+////How to do a simple ERC20 trade ETH -> LRC
+//var tokens = await loopNetClient.GetExchangeTokensAsync();
+//var lrcToken = tokens.Where(x => x.Symbol == "LRC").First();
+//var ethToken = tokens.Where(x => x.Symbol == "ETH").First();
+//var ethVolume = LoopNetUtils.MultiplyByPowerOfTen(0.0384143m, ethToken.Decimals);
+//var lrcVolume = LoopNetUtils.MultiplyByPowerOfTen(369.034m, lrcToken.Decimals);
+//var tradeResult = await loopNetClient.PostOrderAsync(
+//        sellToken: new Token() { TokenId = ethToken.TokenId, /*ETH*/ Volume = ethVolume }, //the token to sell
+//        buyToken: new Token() { TokenId = lrcToken.TokenId, /*LRC*/ Volume = lrcVolume }, //the token to buy
+//        allOrNone: false, //if partial fills for order are enabled. only false is supported for now by the Loopring API
+//        fillAmountBOrS: false, //whether to fill by buy or sell token
+//        validUntil: 1800000000, // Unix timestamp for order expiry..
+//        maxFeeBips: 63, //maximum order fee
+//        clientOrderId: null, //arbitrary client set uniqiue order identifier
+//        orderType: OrderType.TAKER_ONLY,
+//        tradeChannel: TradeChannel.MIXED
+//    );
+//Console.WriteLine(JsonConvert.SerializeObject(tradeResult));
 
 
 //var nftBalanceResponse = await loopNetClient.GetNftWalletBalanceAsync(77900);

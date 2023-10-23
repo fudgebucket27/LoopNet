@@ -1036,6 +1036,7 @@ namespace LoopNet.Services
             }
         }
 
+        /// <inheritdoc/>
         public async Task<OrderResponse?> PostOrderAsync(Token sellToken, Token buyToken, bool allOrNone, bool fillAmountBOrS, int validUntil, int maxFeeBips = 20, string? clientOrderId = null, OrderType? orderType = null, TradeChannel? tradeChannel = null, string? taker = null, string? poolAddress = null, string? affiliate = null)
         {
             var order = new Order()
