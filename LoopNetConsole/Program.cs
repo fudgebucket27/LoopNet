@@ -46,11 +46,11 @@ var loopNetClient = await LoopNetClient.CreateLoopNetClientAsync(1, l1PrivateKey
 //var tokens = await loopNetClient.GetExchangeTokensAsync();
 //var lrcToken = tokens.Where(x => x.Symbol == "LRC").First();
 //var ethToken = tokens.Where(x => x.Symbol == "ETH").First();
-//var ethVolume = LoopNetUtils.MultiplyByPowerOfTen(0.0384143m, ethToken.Decimals);
-//var lrcVolume = LoopNetUtils.MultiplyByPowerOfTen(369.034m, lrcToken.Decimals);
+//var ethSellVolume = LoopNetUtils.MultiplyByPowerOfTen(0.0384143m, ethToken.Decimals);
+//var lrcBuyVolume = LoopNetUtils.MultiplyByPowerOfTen(369.034m, lrcToken.Decimals);
 //var tradeResult = await loopNetClient.PostOrderAsync(
-//        sellToken: new Token() { TokenId = ethToken.TokenId, /*ETH*/ Volume = ethVolume }, //the token to sell
-//        buyToken: new Token() { TokenId = lrcToken.TokenId, /*LRC*/ Volume = lrcVolume }, //the token to buy
+//        sellToken: new Token() { TokenId = ethToken.TokenId, /*ETH*/ Volume = ethSellVolume }, //the token to sell
+//        buyToken: new Token() { TokenId = lrcToken.TokenId, /*LRC*/ Volume = lrcBuyVolume }, //the token to buy
 //        allOrNone: false, //if partial fills for order are enabled. only false is supported for now by the Loopring API
 //        fillAmountBOrS: false, //whether to fill by buy or sell token
 //        validUntil: 1800000000, // Unix timestamp for order expiry..
