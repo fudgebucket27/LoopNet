@@ -9,6 +9,11 @@ namespace LoopNet.Models.Helpers
 {
     public static class LoopNetUtils
     {
+        /// <summary>
+        /// Parse the Hex To BigInteger
+        /// </summary>
+        /// <param name="toParse">The string to parse</param>
+        /// <returns></returns>
         public static BigInteger ParseHexUnsigned(string toParse)
         {
             toParse = toParse.Replace("0x", "");
@@ -18,14 +23,21 @@ namespace LoopNet.Models.Helpers
             return parsResult;
         }
 
-        public static string MultiplyByPowerOfTen(decimal value, int power)
+        /// <summary>
+        /// Calculates the token volume string
+        /// </summary>
+        /// <param name="value">The decimal amount of the token</param>
+        /// <param name="decimals">The amount of decimals</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when the decimals is negative integer</exception>
+        public static string CalculateTokenVolume(decimal value, int decimals)
         {
-            if (power < 0)
+            if (decimals < 0)
             {
-                throw new ArgumentOutOfRangeException("power", "The power must be a non-negative integer.");
+                throw new ArgumentOutOfRangeException("power", "The decimals must be a non-negative integer.");
             }
 
-            for (int i = 0; i < power; i++)
+            for (int i = 0; i < decimals; i++)
             {
                 value *= 10m;
             }

@@ -20,7 +20,7 @@ namespace LoopNet.Models.Responses
         [JsonProperty("accountId")]
         public int AccountId { get; set; }
         [JsonProperty("tokens")]
-        public List<int> Tokens { get; set; }
+        public List<int>? Tokens { get; set; }
         [JsonProperty("storageId")]
         public int StorageId { get; set; }
     }
