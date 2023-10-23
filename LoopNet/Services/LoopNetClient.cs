@@ -1084,12 +1084,10 @@ namespace LoopNet.Services
             var poseidonEddsa = new Eddsa(poseidonHash, _l2PrivateKey);
             var eddsaSignature = poseidonEddsa.Sign();
             order.EddsaSignature = eddsaSignature;
-
+            string serializedOrder = JsonConvert.SerializeObject(order);
+            
             var request = new RestRequest(LoopNetConstantsHelper.PostOrderApiEndpoint);
             request.AddHeader("Content-Type", "application/json");
-            string serializedOrder = JsonConvert.SerializeObject(order);
-
-            // Add the serialized string as raw JSON content
             request.AddParameter("application/json", serializedOrder, ParameterType.RequestBody);
 
             var response = await _loopNetClient!.ExecutePostAsync<OrderResponse>(request);
