@@ -207,7 +207,7 @@ namespace LoopNet.Services
         /// <param name="maxFeeBips">Maximum order fee that the user can accept, value range (in ten thousandths) 1 ~ 63</param>
         /// <param name="clientOrderId">An arbitrary, client-set unique order identifier, max length is 120 bytes</param>
         /// <param name="orderType">Order types, can be AMM, LIMIT_ORDER, MAKER_ONLY, TAKER_ONLY</param>
-        /// <param name="tradeChannel">	Order channel, can be ORDER_BOOK, AMM_POOL, MIXED</param>
+        /// <param name="tradeChannel">	Order channel, can be BLANK,ORDER_BOOK, AMM_POOL, MIXED</param>
         /// <param name="taker">Used by the P2P order which user specify the taker, so far its 0x0000000000000000000000000000000000000000</param>
         /// <param name="poolAddress">The AMM pool address if order type is AMM</param>
         /// <param name="affiliate">An accountID who will recieve a share of the fee of this order</param>
