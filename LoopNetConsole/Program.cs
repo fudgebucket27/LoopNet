@@ -55,7 +55,7 @@ var loopNetClient = await LoopNetClient.CreateLoopNetClientAsync(1, l1PrivateKey
 //        validUntil: 1800000000, // Unix timestamp for order expiry..
 //        maxFeeBips: 63, //maximum order fee
 //        clientOrderId: null, //arbitrary client set uniqiue order identifier
-//        orderType: OrderType.AMM,
+//        orderType: OrderType.TAKER_ONLY,
 //        tradeChannel: TradeChannel.MIXED
 //    );
 //Console.WriteLine(JsonConvert.SerializeObject(tradeResult));
