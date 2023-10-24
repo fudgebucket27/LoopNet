@@ -39,17 +39,17 @@ if (string.IsNullOrEmpty(ethAddress))
 }
 #endregion
 
-var loopNetClient = await LoopNetClient.CreateLoopNetClientAsync(1, l1PrivateKey, ethAddress, true);
+var loopNetClient = await LoopNetClient.CreateLoopNetClientAsync(5, l1PrivateKey, ethAddress, true);
 
 ////How to do a simple ERC20 trade ETH -> LRC
 //var tokens = await loopNetClient.GetExchangeTokensAsync();
 //var lrcToken = tokens!.Where(x => x.Symbol == "LRC").First();
 //var ethToken = tokens!.Where(x => x.Symbol == "ETH").First();
-//var ethSellVolume = LoopNetUtils.CalculateTokenVolume(0.038252m, ethToken.Decimals); //0.038252 ETH
-//var lrcBuyVolume = LoopNetUtils.CalculateTokenVolume(368m, lrcToken.Decimals); //368 LRC
+//var ethSellToken = new Token(tokenId: ethToken.TokenId, amount: 0.03852m, decimals: ethToken.Decimals); //0.038252 ETH
+//var lrcBuyToken = new Token(tokenId: lrcToken.TokenId, amount: 368m,  decimals: lrcToken.Decimals); //368 LRC
 //var tradeResult = await loopNetClient.PostOrderAsync(
-//        sellToken: new Token() { TokenId = ethToken.TokenId, Volume = ethSellVolume }, //the token to sell
-//        buyToken: new Token() { TokenId = lrcToken.TokenId, Volume = lrcBuyVolume }, //the token to buy
+//        sellToken: ethSellToken, //the token to sell
+//        buyToken: lrcBuyToken, //the token to buy
 //        allOrNone: false, //if partial fills for order are enabled. only false is supported for now by the Loopring API
 //        fillAmountBOrS: false, //whether to fill by buy or sell token
 //        validUntil: 1800000000, // Unix timestamp for order expiry..
