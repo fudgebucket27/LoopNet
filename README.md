@@ -26,11 +26,36 @@ var loopNetClient = await LoopNetClient.CreateLoopNetClientAsync(1, "L1 Private 
 ```
 On client creation, it will generate your Loopring Layer 2 Private Key and retrieve your Loopring API Key
 
-### Example usage
+### Example usage - Transfer a token
 Once the client has been created you can start using the various methods. Here is a token transfer
 
 ```csharp
 var tokenTransferResponse = await loopNetClient.PostTokenTransferAsync("0x991B6fE54d46e5e0CEEd38911cD4a8694bed386A", "LRC", 0.01m, "LRC", "LoopNet test");
+```
+
+This will send 0.01 LRC to 0x991B6fE54d46e5e0CEEd38911cD4a8694bed386A with the memo 'LoopNet test', fees will be paid in LRC as well.
+
+
+### Example usage - Trade a token
+Here is a trade of 0.03852 ETH to 368 LRC
+
+```csharp
+var tokens = await loopNetClient.GetExchangeTokensAsync();
+var lrcToken = tokens!.Where(x => x.Symbol == "LRC").First();
+var ethToken = tokens!.Where(x => x.Symbol == "ETH").First();
+var ethSellToken = new Token(tokenId: ethToken.TokenId, amount: 0.03852m, decimals: ethToken.Decimals); //0.038252 ETH
+var lrcBuyToken = new Token(tokenId: lrcToken.TokenId, amount: 368m, decimals: lrcToken.Decimals); //368 LRC
+var tradeResult = await loopNetClient.PostOrderAsync(
+        sellToken: ethSellToken, //the token to sell
+        buyToken: lrcBuyToken, //the token to buy
+        allOrNone: false, //if partial fills for order are enabled. only false is supported for now by the Loopring API
+        fillAmountBOrS: false, //whether to fill by buy or sell token
+        validUntil: 1800000000, // Unix timestamp for order expiry..
+        maxFeeBips: 63, //maximum order fee
+        clientOrderId: null, //arbitrary client set uniqiue order identifier
+        orderType: OrderType.TAKER_ONLY,
+        tradeChannel: TradeChannel.MIXED
+    );
 ```
 
 This will send 0.01 LRC to 0x991B6fE54d46e5e0CEEd38911cD4a8694bed386A with the memo 'LoopNet test', fees will be paid in LRC as well.
