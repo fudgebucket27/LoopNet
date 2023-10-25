@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace LoopNet.Models.Responses
 {
     /// <summary>
-    /// The api key response
+    /// The API Key API response
     /// </summary>
     public class ApiKeyResponse
     {

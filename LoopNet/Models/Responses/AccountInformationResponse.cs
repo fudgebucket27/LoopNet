@@ -24,7 +24,7 @@ namespace LoopNet.Models.Responses
         public string? Y { get; set; }
     }
     /// <summary>
-    /// Contains Loopring Account Information
+    /// Loopring Account Information API response
     /// </summary>
     public class AccountInformationResponse
     {
