@@ -81,6 +81,9 @@ namespace LoopNet.Services
             return instance;
         }
 
+        /// <summary>
+        /// Disposes the LoopNet client
+        /// </summary>
         public void Dispose()
         {
             _loopNetClient?.Dispose();

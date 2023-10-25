@@ -8,10 +8,19 @@ using System.Threading.Tasks;
 
 namespace LoopNet.Models.Requests
 {
+    /// <summary>
+    /// Contains token information
+    /// </summary>
     public class Token
     {
+        /// <summary>
+        /// The token id
+        /// </summary>
         [JsonProperty("tokenId")]
         public int TokenId { get; set; }
+        /// <summary>
+        /// The token id
+        /// </summary>
         [JsonProperty("volume")]
         public string? Volume { get; set; }
 
@@ -27,6 +36,9 @@ namespace LoopNet.Models.Requests
             Volume = CalculateTokenVolume(amount, decimals); 
         }
 
+        /// <summary>
+        /// Default constructor
+        /// </summary>
         public Token(){}
 
         /// <summary>

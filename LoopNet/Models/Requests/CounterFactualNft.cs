@@ -7,8 +7,14 @@ using System.Threading.Tasks;
 
 namespace LoopNet.Models.Requests
 {
+    /// <summary>
+    /// The countefactual nft
+    /// </summary>
     public class CounterFactualNft
     {
+        /// <summary>
+        /// The token address
+        /// </summary>
         [JsonProperty("tokenAddress")]
         public string? TokenAddress { get; set; }
     }
