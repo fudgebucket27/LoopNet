@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace LoopNet.Models.Helpers
 {
+    /// <summary>
+    /// Assortment of utility methods used by LoopNet
+    /// </summary>
     public static class LoopNetUtils
     {
         /// <summary>

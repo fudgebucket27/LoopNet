@@ -7,9 +7,18 @@ using System.Threading.Tasks;
 
 namespace LoopNet.Models.Requests
 {
+    /// <summary>
+    /// Contains transfer token request information
+    /// </summary>
     public class TransferTokenRequest
     {
+        /// <summary>
+        /// The exchange address
+        /// </summary>
         public string? Exchange { get; set; }
+        /// <summary>
+        /// The payer
+        /// </summary>
         public int PayerId { get; set; }
         public string? PayerAddr { get; set; }
         public int PayeeId { get; set; } = 0;           // Default of 0 if unknown is fine
