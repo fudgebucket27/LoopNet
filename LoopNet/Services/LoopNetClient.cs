@@ -1313,14 +1313,14 @@ namespace LoopNet.Services
             var jObjectFlattened = jObject.Flatten();
             var parameterString = JsonConvert.SerializeObject(jObjectFlattened);
             string signatureBaseApiUrl = _chainId == 1 ? LoopNetConstantsHelper.ProductionLoopringApiEndpoint : LoopNetConstantsHelper.TestLoopringApiEndpoint;
-            signatureBaseApiUrl += LoopNetConstantsHelper.PostNftRedPacketTargetApiEndpoint;
+            signatureBaseApiUrl += LoopNetConstantsHelper.PostRedPacketTargetApiEndpoint;
             signatureBase += LoopNetUtils.UrlEncodeUpperCase(signatureBaseApiUrl) + "&";
             signatureBase += LoopNetUtils.UrlEncodeUpperCase(parameterString);
             var sha256Number = SHA256Helper.CalculateSHA256HashNumber(signatureBase);
             var sha256Signer = new Eddsa(sha256Number, _l2PrivateKey);
             var xApiSig = sha256Signer.Sign();
 
-            var request = new RestRequest(LoopNetConstantsHelper.PostNftRedPacketTargetApiEndpoint);
+            var request = new RestRequest(LoopNetConstantsHelper.PostRedPacketTargetApiEndpoint);
             request.AddHeader("x-api-key", _apiKey!);
             request.AddHeader("x-api-sig", xApiSig);
             request.AddHeader("Accept", "application/json");
