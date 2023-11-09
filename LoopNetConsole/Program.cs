@@ -41,6 +41,17 @@ if (string.IsNullOrEmpty(ethAddress))
 
 var loopNetClient = await LoopNetClient.CreateLoopNetClientAsync(5, l1PrivateKey, ethAddress, true);
 
+/////How to mint an Nft Redpacket and send it to the target
+//var nftBalance = await loopNetClient.GetNftWalletBalanceAsync();
+//var nft = nftBalance!.First().Value.NftData;
+//var validSince = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+//var validUntil = DateTimeOffset.UtcNow.AddDays(7).ToUnixTimeSeconds();
+//var redpacketNftMintResponse = await loopNetClient.PostNftMintRedPacketAsync(validSince, validUntil, NftRedPacketType.Common, NftRedPacketViewType.TARGET, NftRedPacketAmountType.AVERAGE, nft!, "1", "1", "test", "LRC");
+//Console.WriteLine("Nft red packet minted: " + JsonConvert.SerializeObject(redpacketNftMintResponse, Formatting.Indented));
+//var addressesToTarget = new List<string> {"0x991B6fE54d46e5e0CEEd38911cD4a8694bed386A" };
+//var redpacketNftTargetResponse = await loopNetClient.PostNftRedPacketTargetAsync(addressesToTarget, redpacketNftMintResponse.Hash, 0);
+//Console.WriteLine("Nft red packet sent to targets:" + JsonConvert.SerializeObject(redpacketNftTargetResponse, Formatting.Indented));
+
 ////How to do a simple ERC20 trade ETH -> LRC
 //var tokens = await loopNetClient.GetExchangeTokensAsync();
 //var lrcToken = tokens!.Where(x => x.Symbol == "LRC").First();
