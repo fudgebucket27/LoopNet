@@ -39,7 +39,7 @@ if (string.IsNullOrEmpty(ethAddress))
 }
 #endregion
 
-var loopNetClient = await LoopNetClient.CreateLoopNetClientAsync(5, l1PrivateKey, ethAddress, true);
+var loopNetClient = await LoopNetClient.CreateLoopNetClientAsync(1, l1PrivateKey, ethAddress, true);
 
 /// How to mint an Nft Redpacket and send it to a list of targets, 1 nft per packet, 2 packets
 //var nftBalance = await loopNetClient.GetNftWalletBalanceAsync();
@@ -53,13 +53,13 @@ var loopNetClient = await LoopNetClient.CreateLoopNetClientAsync(5, l1PrivateKey
 //Console.WriteLine("Nft red packet sent to targets:" + JsonConvert.SerializeObject(redpacketNftTargetResponse, Formatting.Indented));
 
 /////How to mint a token Redpacket and send it to a list of targets, 1 lrc per packet, 2 packets
-//var validSince = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-//var validUntil = DateTimeOffset.UtcNow.AddDays(7).ToUnixTimeSeconds();
-//var redpacketMintResponse = await loopNetClient.PostMintRedPacketAsync(validSince, validUntil, RedPacketType.Common, RedPacketViewType.TARGET, RedPacketAmountType.AVERAGE, 1, 1m, 2m, "test token loopnet", "LRC");
-//Console.WriteLine("Token red packet minted: " + JsonConvert.SerializeObject(redpacketMintResponse, Formatting.Indented));
-//var addressesToTarget = new List<string> { "0x991B6fE54d46e5e0CEEd38911cD4a8694bed386A", "0x37ea02537f3a7a7ffc221125245905be3d5423e6" };
-//var redpacketTargetResponse = await loopNetClient.PostRedPacketTargetAsync(addressesToTarget, redpacketMintResponse.Hash, 0);
-//Console.WriteLine("Token red packet sent to targets:" + JsonConvert.SerializeObject(redpacketTargetResponse, Formatting.Indented));
+var validSince = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+var validUntil = DateTimeOffset.UtcNow.AddDays(7).ToUnixTimeSeconds();
+var redpacketMintResponse = await loopNetClient.PostMintRedPacketAsync(validSince, validUntil, RedPacketType.Common, RedPacketViewType.TARGET, RedPacketAmountType.AVERAGE, 1, 1m, 2m, "test token loopnet", "LRC");
+Console.WriteLine("Token red packet minted: " + JsonConvert.SerializeObject(redpacketMintResponse, Formatting.Indented));
+var addressesToTarget = new List<string> { "0x991B6fE54d46e5e0CEEd38911cD4a8694bed386A", "0x37ea02537f3a7a7ffc221125245905be3d5423e6" };
+var redpacketTargetResponse = await loopNetClient.PostRedPacketTargetAsync(addressesToTarget, redpacketMintResponse.Hash, 0);
+Console.WriteLine("Token red packet sent to targets:" + JsonConvert.SerializeObject(redpacketTargetResponse, Formatting.Indented));
 
 ////How to do a simple ERC20 trade ETH -> LRC
 //var tokens = await loopNetClient.GetExchangeTokensAsync();
