@@ -41,6 +41,14 @@ if (string.IsNullOrEmpty(ethAddress))
 
 var loopNetClient = await LoopNetClient.CreateLoopNetClientAsync(5, l1PrivateKey, ethAddress, true);
 
+var nftBalance = await loopNetClient.GetNftWalletBalanceAsync();
+var nft = nftBalance.First().Value.NftData;
+var validSince = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+var validUntil = DateTimeOffset.UtcNow.AddDays(7).ToUnixTimeSeconds();
+
+var redpacketNftMintResponse = await loopNetClient.PostNftMintRedPacket(validSince, validUntil, NftRedPacketType.Normal, nft, "1", "1", "test", "LRC");
+Console.WriteLine(JsonConvert.SerializeObject(redpacketNftMintResponse));
+
 ////How to do a simple ERC20 trade ETH -> LRC
 //var tokens = await loopNetClient.GetExchangeTokensAsync();
 //var lrcToken = tokens!.Where(x => x.Symbol == "LRC").First();

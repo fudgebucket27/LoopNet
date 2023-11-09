@@ -1125,7 +1125,7 @@ namespace LoopNet.Services
 
             if (nftBalance != null && nftBalance.Data != null && nftBalance.Data.Count > 0 && nftBalance.Data[0] != null)
             {
-                var offchainFee = await GetNftOffChainFeeWithAmount(0, 11, nftBalance.Data[0].TokenAddress!);
+                var offchainFee = await GetNftOffChainFeeWithAmount(0, 24, nftBalance.Data[0].TokenAddress!);
                 var storageId = await GetStorageIdAsync(nftBalance.Data[0].TokenId);
                 bool isBlind = false;
                 if (nftRedPacketType == NftRedPacketType.Blind)
@@ -1285,6 +1285,7 @@ namespace LoopNet.Services
                 var response = await _loopNetClient!.ExecutePostAsync<RedPacketNftMintResponse>(request);
                 if (response.IsSuccessful)
                 {
+                    response.Data!.NftData = nftData;
                     return response.Data;
                 }
                 else

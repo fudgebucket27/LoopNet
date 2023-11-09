@@ -231,8 +231,8 @@ namespace LoopNet.Services
         /// <summary>
         /// Post nft mint red packet
         /// </summary>
-        /// <param name="validSince">The date when the red packet can be started to claim. Unix Timestamp in seconds</param>
-        /// <param name="validUntil">The date when the red packet claim ends. Unix Timestamp in seconds</param>
+        /// <param name="validSince">The date when the red packet can be started to claim. Unix Timestamp in seconds in UTC</param>
+        /// <param name="validUntil">The date when the red packet claim ends. Unix Timestamp in seconds in UTC</param>
         /// <param name="nftRedPacketType">The nft red packet type</param>
         /// <param name="nftData">The nft data</param>
         /// <param name="amountOfNftsPerPacket">Amount of nfts per packets</param>
