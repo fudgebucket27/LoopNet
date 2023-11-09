@@ -81,7 +81,7 @@ namespace LoopNet.Models.Requests
     /// <summary>
     /// The Red Packet Nft
     /// </summary>
-    public class RedPacketNft
+    public class RedPacket
     {
         /// <summary>
         /// The ecdsa signature
@@ -163,9 +163,9 @@ namespace LoopNet.Models.Requests
     }
 
     /// <summary>
-    /// The type of Red Packet Nft
+    /// The type of Red Packet
     /// </summary>
-    public enum NftRedPacketType
+    public enum RedPacketType
     {
         /// <summary>
         /// Relay amount is sent
@@ -183,9 +183,9 @@ namespace LoopNet.Models.Requests
     }
 
     /// <summary>
-    /// Nft red packet amount type
+    /// red packet amount type
     /// </summary>
-    public enum NftRedPacketAmountType
+    public enum RedPacketAmountType
     {
         /// <summary>
         /// Send random amount
@@ -198,9 +198,9 @@ namespace LoopNet.Models.Requests
     }
 
     /// <summary>
-    /// Nft red packet view type
+    /// red packet view type
     /// </summary>
-    public enum NftRedPacketViewType
+    public enum RedPacketViewType
     {
         /// <summary>
         /// Public

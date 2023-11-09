@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 namespace LoopNet.Models.Requests
 {
     /// <summary>
-    /// Red packet nft target
+    /// Red packet target
     /// </summary>
-    public class RedPacketNftTarget
+    public class RedPacketTarget
     {
         /// <summary>
         /// List of address to send the red packet nft to

@@ -117,9 +117,9 @@ namespace LoopNet.Models.Helpers
         public const string PostOrderApiEndpoint = "api/v3/order";
 
         /// <summary>
-        /// The post nft red packet mint api endpoint
+        /// The post red packet mint api endpoint
         /// </summary>
-        public const string PostNftRedPacketMintApiEndpoint = "/api/v3/luckyToken/sendLuckyToken";
+        public const string PostRedPacketEndpoint = "/api/v3/luckyToken/sendLuckyToken";
 
         /// <summary>
         /// The post nft red packet target

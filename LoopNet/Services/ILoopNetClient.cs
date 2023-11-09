@@ -239,7 +239,26 @@ namespace LoopNet.Services
         /// <param name="giftAmount">Amount to gift if blind box nft, optional</param>
         /// <returns>The red packet mint response</returns>
         /// <exception cref="Exception">Thrown when there is an issue with the Loopring API</exception>
-        Task<RedPacketNftMintResponse?> PostNftMintRedPacketAsync(long validSince, long validUntil, NftRedPacketType nftRedPacketType, NftRedPacketViewType nftRedPacketViewType, NftRedPacketAmountType nftRedPacketAmountType, string nftData, string amountOfNftsPerPacket, string amountOfPackets, string memo, string feeTokenSymbol, string? giftAmount = null);
+        Task<RedPacketMintResponse?> PostNftMintRedPacketAsync(long validSince, long validUntil, RedPacketType nftRedPacketType, RedPacketViewType nftRedPacketViewType, RedPacketAmountType nftRedPacketAmountType, string nftData, string amountOfNftsPerPacket, string amountOfPackets, string memo, string feeTokenSymbol, string? giftAmount = null);
+
+        /// <summary>
+        /// Post mint red packet
+        /// </summary>
+        /// <param name="validSince">The date when the red packet can be started to claim. Unix Timestamp in seconds in UTC</param>
+        /// <param name="validUntil">The date when the red packet claim ends. Unix Timestamp in seconds in UTC</param>
+        /// <param name="redPacketType">The red packet type</param>
+        /// <param name="redPacketViewType">The red packet view type public, private or exclusive</param>
+        /// <param name="redPacketAmountType">The red packet amount distribution type.</param>
+        /// <param name="tokenToSend">The token id of the token to send. 0 for eth, 1 for lrc</param>
+        /// <param name="amountPerPacket">Amount per packets</param>
+        /// <param name="amountOfPackets">Amount of packets</param>
+        /// <param name="memo">The memo to include</param>
+        /// <param name="feeTokenSymbol">The fee token symbol</param>
+        /// <param name="giftAmount">Amount to gift if blind box nft, optional</param>
+        /// <returns>The red packet mint response</returns>
+        /// <exception cref="Exception">Thrown when there is an issue with the Loopring API</exception>
+        Task<RedPacketMintResponse?> PostMintRedPacketAsync(long validSince, long validUntil, RedPacketType redPacketType, RedPacketViewType redPacketViewType, RedPacketAmountType redPacketAmountType, int tokenToSend, decimal amountPerPacket, decimal amountOfPackets, string memo, string feeTokenSymbol, decimal? giftAmount = null);
+
 
         /// <summary>
         /// Get nft offchain fee with amount
@@ -252,12 +271,22 @@ namespace LoopNet.Services
         Task<OffchainFeeResponse?> GetNftOffChainFeeWithAmountAsync(int amount, int requestType, string tokenAddress);
 
         /// <summary>
+        /// Get offchain fee with amount
+        /// </summary>
+        /// <param name="amount">The amount</param>
+        /// <param name="requestType">The request type</param>
+        /// <param name="extraType">The extra type</param>
+        /// <returns>The offchain fee with amount</returns>
+        /// <exception cref="Exception">Thrown when there is an issue with the Loopring API</exception>
+        Task<OffchainFeeResponse?> GetOffChainFeeWithAmountAsync(int amount, int requestType, int extraType);
+
+        /// <summary>
         /// Post nft red packet to a list of addressess
         /// </summary>
         /// <param name="addresses">The list of address to send the nft red packet to</param>
-        /// <param name="nftRedPacketHash">The hash of the nft red packet</param>
+        /// <param name="redPacketHash">The hash of the nft red packet</param>
         /// <param name="notifyType">Notification type, 0 for badge, 1 for push notification</param>
         /// <returns></returns>
-        Task<TransferTokenResponse?> PostNftRedPacketTargetAsync(List<string> addresses, string nftRedPacketHash, int notifyType);
+        Task<TransferTokenResponse?> PostNftRedPacketTargetAsync(List<string> addresses, string redPacketHash, int notifyType);
     }
 }
