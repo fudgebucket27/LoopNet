@@ -87,12 +87,12 @@ namespace LoopNet.Models.Requests
         /// The ecdsa signature
         /// </summary>
         [JsonProperty("ecdsaSignature")]
-        public string? ecdsaSignature { get; set; }
+        public string? EcdsaSignature { get; set; }
         /// <summary>
         /// The gift numbers
         /// </summary>
         [JsonProperty("giftNumbers")]
-        public string? giftNumbers { get; set; }
+        public string? GiftNumbers { get; set; }
         /// <summary>
         /// The lucky token
         /// </summary>
