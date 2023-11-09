@@ -1371,7 +1371,7 @@ namespace LoopNet.Services
                                     (BigInteger) _accountInformation!.AccountId,
                                     (BigInteger) 0,
                                     (BigInteger) tokenToSend,
-                                    isBlind ? BigInteger.Parse(amountPerPacket.ToString("0")) : BigInteger.Parse(amountPerPacket.ToString("0")) * BigInteger.Parse(amountOfPackets.ToString("0")),
+                                    isBlind ? BigInteger.Parse(amountPerPacket.ToString("0")) * BigInteger.Parse(1000000000000000000m.ToString("0")) : BigInteger.Parse(amountPerPacket.ToString("0")) * BigInteger.Parse(amountOfPackets.ToString("0")) * BigInteger.Parse(1000000000000000000m.ToString("0")),
                                     (BigInteger) maxFeeTokenId,
                                     BigInteger.Parse(offchainFee!.Fees![maxFeeTokenId].Fee!),
                                     LoopNetUtils.ParseHexUnsigned(_chainId == 1 ? "0x9cde4366824d9410fb2e2f885601933a926f40d7" : "0xa3961aae9522f0f66f2406ac6faa2af0a8bfe504"),
@@ -1423,7 +1423,7 @@ namespace LoopNet.Services
                                     new MemberValue {TypeName = "address", Value = _accountInformation.Owner},
                                     new MemberValue {TypeName = "address", Value = _chainId == 1 ? "0x9cde4366824d9410fb2e2f885601933a926f40d7" : "0xa3961aae9522f0f66f2406ac6faa2af0a8bfe504"},
                                     new MemberValue {TypeName = "uint16", Value = tokenToSend},
-                                    new MemberValue {TypeName = "uint96", Value = isBlind ? BigInteger.Parse(amountPerPacket.ToString("0")) : BigInteger.Parse(amountPerPacket.ToString("0")) * BigInteger.Parse(amountOfPackets.ToString("0"))},
+                                    new MemberValue {TypeName = "uint96", Value = isBlind ? BigInteger.Parse(amountPerPacket.ToString("0")) * BigInteger.Parse(1000000000000000000m.ToString("0")) : BigInteger.Parse(amountPerPacket.ToString("0")) * BigInteger.Parse(amountOfPackets.ToString("0")) * BigInteger.Parse(1000000000000000000m.ToString("0"))},
                                     new MemberValue {TypeName = "uint16", Value = maxFeeTokenId},
                                     new MemberValue {TypeName = "uint96", Value = BigInteger.Parse(offchainFee.Fees[maxFeeTokenId].Fee!)},
                                     new MemberValue {TypeName = "uint32", Value = validUntil30Days},
@@ -1502,7 +1502,7 @@ namespace LoopNet.Services
         /// <inheritdoc/>
         public async Task<OffchainFeeResponse?> GetOffChainFeeWithAmountAsync(int amount, int requestType, int extraType)
         {
-            var request = new RestRequest(LoopNetConstantsHelper.GetOffchainFeeNftApiEndpoint);
+            var request = new RestRequest(LoopNetConstantsHelper.GetOffchainFeeApiEndpoint);
             request.AddHeader("x-api-key", _apiKey!);
             request.AddParameter("accountId", _accountInformation!.AccountId);
             request.AddParameter("amount", amount);
