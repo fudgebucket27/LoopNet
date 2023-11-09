@@ -13,7 +13,7 @@
     <PackageReleaseNotes>Support for red packet token minting and target</PackageReleaseNotes>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <AssemblyVersion></AssemblyVersion>
-    <Version>0.0.16</Version>
+    <Version>0.0.17</Version>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
   </PropertyGroup>
 
