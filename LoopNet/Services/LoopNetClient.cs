@@ -1107,7 +1107,7 @@ namespace LoopNet.Services
         }
 
         /// <inheritdoc/>
-        public async Task<RedPacketNftMintResponse?> PostNftMintRedPacket(long validSince, long validUntil, NftRedPacketType nftRedPacketType, NftRedPacketViewType nftRedPacketViewType, NftRedPacketAmountType nftRedPacketAmountType, string nftData, string amountOfNftsPerPacket, string amountOfPackets, string memo, string feeTokenSymbol, string? giftAmount = null)
+        public async Task<RedPacketNftMintResponse?> PostNftMintRedPacketAsync(long validSince, long validUntil, NftRedPacketType nftRedPacketType, NftRedPacketViewType nftRedPacketViewType, NftRedPacketAmountType nftRedPacketAmountType, string nftData, string amountOfNftsPerPacket, string amountOfPackets, string memo, string feeTokenSymbol, string? giftAmount = null)
         {
             var maxFeeTokenId = 0;
             if (feeTokenSymbol != "LRC" && feeTokenSymbol != "ETH")
@@ -1125,7 +1125,7 @@ namespace LoopNet.Services
 
             if (nftBalance != null && nftBalance.Data != null && nftBalance.Data.Count > 0 && nftBalance.Data[0] != null)
             {
-                var offchainFee = await GetNftOffChainFeeWithAmount(0, 24, nftBalance.Data[0].TokenAddress!);
+                var offchainFee = await GetNftOffChainFeeWithAmountAsync(0, 24, nftBalance.Data[0].TokenAddress!);
                 var storageId = await GetStorageIdAsync(nftBalance.Data[0].TokenId);
                 bool isBlind = false;
                 if (nftRedPacketType == NftRedPacketType.Blind_Box)
@@ -1242,15 +1242,15 @@ namespace LoopNet.Services
 
                 redPacketNft.Type = new LoopNet.Models.Requests.Type()
                 {
-                    partition = (int)nftRedPacketAmountType,
-                    mode = (int)nftRedPacketViewType,
-                    scope = (int)nftRedPacketType
+                    Partition = (int)nftRedPacketAmountType,
+                    Scope = (int)nftRedPacketViewType,
+                    Mode = (int)nftRedPacketType
                 };
 
                 redPacketNft.ValidSince = validSince;
                 redPacketNft.ValidUntil = validUntil;
 
-                var request = new RestRequest(LoopNetConstantsHelper.PostNftRedPacketMint);
+                var request = new RestRequest(LoopNetConstantsHelper.PostNftRedPacketMintApiEndpoint);
                 request.AddHeader("x-api-key", _apiKey!);
                 request.AddHeader("x-api-sig", ecdsaSignature);
                 request.AddHeader("Accept", "application/json");
@@ -1276,7 +1276,7 @@ namespace LoopNet.Services
         }
 
         /// <inheritdoc/>
-        public async Task<OffchainFeeResponse?> GetNftOffChainFeeWithAmount(int amount, int requestType, string tokenAddress)
+        public async Task<OffchainFeeResponse?> GetNftOffChainFeeWithAmountAsync(int amount, int requestType, string tokenAddress)
         {
             var request = new RestRequest(LoopNetConstantsHelper.GetOffchainFeeNftApiEndpoint);
             request.AddHeader("x-api-key", _apiKey!);
@@ -1292,6 +1292,51 @@ namespace LoopNet.Services
             else
             {
                 throw new Exception($"Error getting nft offchain fee with amount, HTTP Status Code:{response.StatusCode}, Content:{response.Content}");
+            }
+        }
+
+        /// <inheritdoc/>
+        public async Task<TransferTokenResponse?> PostNftRedPacketTargetAsync(List<string> addresses, string nftRedPacketHash, int notifyType)
+        {
+            var redPacketNftTarget = new RedPacketNftTarget();
+            redPacketNftTarget.Claimer = addresses;
+            redPacketNftTarget.Hash = nftRedPacketHash;
+            redPacketNftTarget.NotifyType = notifyType;
+
+            //Calculate api sig value
+            Dictionary<string, object> dataToSig = new Dictionary<string, object>();
+            dataToSig.Add("claimer", addresses);
+            dataToSig.Add("hash", nftRedPacketHash);
+            dataToSig.Add("notifyType", notifyType);
+            var signatureBase = "POST&";
+            var jObject = JObject.Parse(JsonConvert.SerializeObject(dataToSig));
+            var jObjectFlattened = jObject.Flatten();
+            var parameterString = JsonConvert.SerializeObject(jObjectFlattened);
+            string signatureBaseApiUrl = _chainId == 1 ? LoopNetConstantsHelper.ProductionLoopringApiEndpoint : LoopNetConstantsHelper.TestLoopringApiEndpoint;
+            signatureBaseApiUrl += LoopNetConstantsHelper.PostNftRedPacketTargetApiEndpoint;
+            signatureBase += LoopNetUtils.UrlEncodeUpperCase(signatureBaseApiUrl) + "&";
+            signatureBase += LoopNetUtils.UrlEncodeUpperCase(parameterString);
+            var sha256Number = SHA256Helper.CalculateSHA256HashNumber(signatureBase);
+            var sha256Signer = new Eddsa(sha256Number, _l2PrivateKey);
+            var xApiSig = sha256Signer.Sign();
+
+            var request = new RestRequest(LoopNetConstantsHelper.PostNftRedPacketTargetApiEndpoint);
+            request.AddHeader("x-api-key", _apiKey!);
+            request.AddHeader("x-api-sig", xApiSig);
+            request.AddHeader("Accept", "application/json");
+            var jObjectRequest = JObject.Parse(JsonConvert.SerializeObject(redPacketNftTarget));
+            var jObjectFlattenedRequest = jObjectRequest.Flatten();
+            var jObjectFlattenedString = JsonConvert.SerializeObject(jObjectFlattenedRequest);
+            request.AddParameter("application/json", jObjectFlattenedString, ParameterType.RequestBody);
+
+            var response = await _loopNetClient!.ExecutePostAsync<TransferTokenResponse>(request);
+            if (response.IsSuccessful)
+            {
+                return response.Data;
+            }
+            else
+            {
+                throw new Exception($"Error post nft red packet target, HTTP Status Code:{response.StatusCode}, Content:{response.Content}");
             }
         }
     }

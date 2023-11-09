@@ -1,10 +1,5 @@
 ﻿using LoopNet.Models.Requests;
 using LoopNet.Models.Responses;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LoopNet.Services
 {
@@ -244,7 +239,7 @@ namespace LoopNet.Services
         /// <param name="giftAmount">Amount to gift if blind box nft, optional</param>
         /// <returns>The red packet mint response</returns>
         /// <exception cref="Exception">Thrown when there is an issue with the Loopring API</exception>
-        Task<RedPacketNftMintResponse?> PostNftMintRedPacket(long validSince, long validUntil, NftRedPacketType nftRedPacketType, NftRedPacketViewType nftRedPacketViewType, NftRedPacketAmountType nftRedPacketAmountType, string nftData, string amountOfNftsPerPacket, string amountOfPackets, string memo, string feeTokenSymbol, string? giftAmount = null);
+        Task<RedPacketNftMintResponse?> PostNftMintRedPacketAsync(long validSince, long validUntil, NftRedPacketType nftRedPacketType, NftRedPacketViewType nftRedPacketViewType, NftRedPacketAmountType nftRedPacketAmountType, string nftData, string amountOfNftsPerPacket, string amountOfPackets, string memo, string feeTokenSymbol, string? giftAmount = null);
 
         /// <summary>
         /// Get nft offchain fee with amount
@@ -254,6 +249,15 @@ namespace LoopNet.Services
         /// <param name="tokenAddress">The token address</param>
         /// <returns>The nft offchain fee with amount</returns>
         /// <exception cref="Exception">Thrown when there is an issue with the Loopring API</exception>
-        Task<OffchainFeeResponse?> GetNftOffChainFeeWithAmount(int amount, int requestType, string tokenAddress);
+        Task<OffchainFeeResponse?> GetNftOffChainFeeWithAmountAsync(int amount, int requestType, string tokenAddress);
+
+        /// <summary>
+        /// Post nft red packet to a list of addressess
+        /// </summary>
+        /// <param name="addresses">The list of address to send the nft red packet to</param>
+        /// <param name="nftRedPacketHash">The hash of the nft red packet</param>
+        /// <param name="notifyType">Notification type, 0 for badge, 1 for push notification</param>
+        /// <returns></returns>
+        Task<TransferTokenResponse?> PostNftRedPacketTargetAsync(List<string> addresses, string nftRedPacketHash, int notifyType);
     }
 }

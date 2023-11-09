@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace LoopNet.Models.Helpers
 {
@@ -46,6 +48,18 @@ namespace LoopNet.Models.Helpers
             }
 
             return value.ToString("F0");
+        }
+
+        /// <summary>
+        /// Encodes a URL
+        /// </summary>
+        /// <param name="stringToEncode">The url to encode</param>
+        /// <returns></returns>
+        public static string UrlEncodeUpperCase(string stringToEncode)
+        {
+            var reg = new Regex(@"%[a-f0-9]{2}");
+            stringToEncode = HttpUtility.UrlEncode(stringToEncode);
+            return reg.Replace(stringToEncode, m => m.Value.ToUpperInvariant());
         }
     }
 }

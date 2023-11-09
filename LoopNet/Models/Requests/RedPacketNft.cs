@@ -148,15 +148,18 @@ namespace LoopNet.Models.Requests
         /// <summary>
         /// The partition
         /// </summary>
-        public int partition { get; set; }
+        [JsonProperty("partition")]
+        public int Partition { get; set; }
         /// <summary>
         /// The mode
         /// </summary>
-        public int mode { get; set; }
+        [JsonProperty("mode")]
+        public int Mode { get; set; }
         /// <summary>
         /// The scope
         /// </summary>
-        public int scope { get; set; }
+       [JsonProperty("scope")]
+        public int Scope { get; set; }
     }
 
     /// <summary>
