@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 namespace LoopNet.Models.Responses
 {
     /// <summary>
-    /// The red packet nft mint response
+    /// The red packet response
     /// </summary>
-    public class RedPacketNftMintResponse
+    public class RedPacketMintResponse
     {
         /// <summary>
         /// The hash

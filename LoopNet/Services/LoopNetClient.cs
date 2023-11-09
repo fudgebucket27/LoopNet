@@ -42,7 +42,7 @@ namespace LoopNet.Services
         private LoopNetClient(int chainId, string l1PrivateKey, string ethAddress)
         {
             _chainId = chainId;
-            if(chainId == 1)
+            if (chainId == 1)
             {
                 _loopNetClient = new RestClient(LoopNetConstantsHelper.ProductionLoopringApiEndpoint);
             }
@@ -64,7 +64,7 @@ namespace LoopNet.Services
         /// <returns>A LoopNetClient</returns>
         public static async Task<LoopNetClient> CreateLoopNetClientAsync(int chainId, string l1PrivateKey, string ethAddress, bool showConnectionInfo = false)
         {
-            if(chainId != 1 && chainId != 5)
+            if (chainId != 1 && chainId != 5)
             {
                 throw new Exception("Invalid chainId. 1 for MAINNET, 5 for TEST");
             }
@@ -77,7 +77,7 @@ namespace LoopNet.Services
             await instance.GetApiKeyAsync();
             if (showConnectionInfo == true)
             {
-                Console.WriteLine($"Connected to Loopring... {(chainId ==  1 ? "MAINNET" : "TEST")}");
+                Console.WriteLine($"Connected to Loopring... {(chainId == 1 ? "MAINNET" : "TEST")}");
             }
             return instance;
         }
@@ -173,7 +173,7 @@ namespace LoopNet.Services
             int accountId = _accountInformation!.AccountId;
 
             var skipPublicKeyCalculation = false; //set to false to generate the public key details as well, set to true to skip public key generation which makes it run faster
-             
+
             var signer = new EthereumMessageSigner();
             var signedMessageECDSA = signer.EncodeUTF8AndSign(messageToSign, new EthECKey(_l1PrivateKey));
             if (walletType!.Data!.IsContract == true || walletType!.Data!.IsInCounterFactualStatus == true)
@@ -813,7 +813,7 @@ namespace LoopNet.Services
                 {
                     Name = "Loopring Protocol",
                     Version = "3.6.0",
-                    ChainId = _chainId == 1 ? 1:5,
+                    ChainId = _chainId == 1 ? 1 : 5,
                     VerifyingContract = _chainId == 1 ? LoopNetConstantsHelper.ProductionExchangeAddress : LoopNetConstantsHelper.TestExchangeAddress,
                 },
                 PrimaryType = primaryTypeName,
@@ -984,7 +984,7 @@ namespace LoopNet.Services
                 request.AddParameter("offset", offset);
 
                 var response = await _loopNetClient!.ExecuteGetAsync<NftHoldersResponse>(request);
-                if(!response.IsSuccessful)
+                if (!response.IsSuccessful)
                 {
                     throw new Exception($"Error getting nft holders for the given nftData, HTTP Status Code:{response.StatusCode}, Content:{response.Content}");
                 }
@@ -1046,7 +1046,7 @@ namespace LoopNet.Services
             var order = new Order()
             {
                 Exchange = _chainId == 1 ? LoopNetConstantsHelper.ProductionExchangeAddress : LoopNetConstantsHelper.TestExchangeAddress,
-                AccountId =  _accountInformation!.AccountId,
+                AccountId = _accountInformation!.AccountId,
                 StorageId = (await GetStorageIdAsync(sellToken.TokenId))!.OrderId, // MAYBE? NOT SURE
                 SellToken = sellToken,
                 BuyToken = buyToken,
@@ -1089,7 +1089,7 @@ namespace LoopNet.Services
             var eddsaSignature = poseidonEddsa.Sign();
             order.EddsaSignature = eddsaSignature;
             string serializedOrder = JsonConvert.SerializeObject(order);
-            
+
             var request = new RestRequest(LoopNetConstantsHelper.PostOrderApiEndpoint);
             request.AddHeader("Content-Type", "application/json");
             request.AddParameter("application/json", serializedOrder, ParameterType.RequestBody);
@@ -1107,7 +1107,7 @@ namespace LoopNet.Services
         }
 
         /// <inheritdoc/>
-        public async Task<RedPacketNftMintResponse?> PostNftMintRedPacketAsync(long validSince, long validUntil, NftRedPacketType nftRedPacketType, NftRedPacketViewType nftRedPacketViewType, NftRedPacketAmountType nftRedPacketAmountType, string nftData, string amountOfNftsPerPacket, string amountOfPackets, string memo, string feeTokenSymbol, string? giftAmount = null)
+        public async Task<RedPacketMintResponse?> PostNftMintRedPacketAsync(long validSince, long validUntil, RedPacketType nftRedPacketType, RedPacketViewType nftRedPacketViewType, RedPacketAmountType nftRedPacketAmountType, string nftData, string amountOfNftsPerPacket, string amountOfPackets, string memo, string feeTokenSymbol, string? giftAmount = null)
         {
             var maxFeeTokenId = 0;
             if (feeTokenSymbol != "LRC" && feeTokenSymbol != "ETH")
@@ -1128,7 +1128,7 @@ namespace LoopNet.Services
                 var offchainFee = await GetNftOffChainFeeWithAmountAsync(0, 24, nftBalance.Data[0].TokenAddress!);
                 var storageId = await GetStorageIdAsync(nftBalance.Data[0].TokenId);
                 bool isBlind = false;
-                if (nftRedPacketType == NftRedPacketType.Blind_Box)
+                if (nftRedPacketType == RedPacketType.Blind_Box)
                 {
                     isBlind = true;
                 }
@@ -1207,7 +1207,7 @@ namespace LoopNet.Services
                 var ecdsaSignature = serializedECDRSASignature + "0" + (int)2;
 
                 //Red packet details
-                RedPacketNft redPacketNft = new RedPacketNft();
+                RedPacket redPacketNft = new RedPacket();
                 redPacketNft.EcdsaSignature = ecdsaSignature;
                 LuckyToken luckyToken = new LuckyToken();
                 luckyToken.Exchange = _chainId == 1 ? LoopNetConstantsHelper.ProductionExchangeAddress : LoopNetConstantsHelper.TestExchangeAddress;
@@ -1218,7 +1218,7 @@ namespace LoopNet.Services
                 luckyToken.Token = nftBalance.Data[0].TokenId;
 
                 //Red packet details
-                if (nftRedPacketType == NftRedPacketType.Blind_Box)
+                if (nftRedPacketType == RedPacketType.Blind_Box)
                 {
                     luckyToken.Amount = amountOfNftsPerPacket;
                     redPacketNft.GiftNumbers = giftAmount;
@@ -1250,7 +1250,7 @@ namespace LoopNet.Services
                 redPacketNft.ValidSince = validSince;
                 redPacketNft.ValidUntil = validUntil;
 
-                var request = new RestRequest(LoopNetConstantsHelper.PostNftRedPacketMintApiEndpoint);
+                var request = new RestRequest(LoopNetConstantsHelper.PostRedPacketEndpoint);
                 request.AddHeader("x-api-key", _apiKey!);
                 request.AddHeader("x-api-sig", ecdsaSignature);
                 request.AddHeader("Accept", "application/json");
@@ -1258,7 +1258,7 @@ namespace LoopNet.Services
                 var jObjectFlattened = jObject.Flatten();
                 var jObjectFlattenedString = JsonConvert.SerializeObject(jObjectFlattened);
                 request.AddParameter("application/json", jObjectFlattenedString, ParameterType.RequestBody);
-                var response = await _loopNetClient!.ExecutePostAsync<RedPacketNftMintResponse>(request);
+                var response = await _loopNetClient!.ExecutePostAsync<RedPacketMintResponse>(request);
                 if (response.IsSuccessful)
                 {
                     response.Data!.NftData = nftData;
@@ -1298,7 +1298,7 @@ namespace LoopNet.Services
         /// <inheritdoc/>
         public async Task<TransferTokenResponse?> PostNftRedPacketTargetAsync(List<string> addresses, string nftRedPacketHash, int notifyType)
         {
-            var redPacketNftTarget = new RedPacketNftTarget();
+            var redPacketNftTarget = new RedPacketTarget();
             redPacketNftTarget.Claimer = addresses;
             redPacketNftTarget.Hash = nftRedPacketHash;
             redPacketNftTarget.NotifyType = notifyType;
@@ -1337,6 +1337,185 @@ namespace LoopNet.Services
             else
             {
                 throw new Exception($"Error post nft red packet target, HTTP Status Code:{response.StatusCode}, Content:{response.Content}");
+            }
+        }
+
+        /// <inheritdoc/>
+        public async Task<RedPacketMintResponse?> PostMintRedPacketAsync(long validSince, long validUntil, RedPacketType redPacketType, RedPacketViewType redPacketViewType, RedPacketAmountType redPacketAmountType, int tokenToSend, decimal amountPerPacket, decimal amountOfPackets, string memo, string feeTokenSymbol, decimal? giftAmount = null)
+        {
+            var maxFeeTokenId = 0;
+            if (feeTokenSymbol != "LRC" && feeTokenSymbol != "ETH")
+            {
+                throw new Exception("LoopNet only works with LRC or ETH!");
+            }
+
+            if (feeTokenSymbol == "LRC")
+            {
+                maxFeeTokenId = 1;
+            }
+
+            var validUntil30Days = validUntil + (30 * 86400);
+
+            var offchainFee = await GetOffChainFeeWithAmountAsync(0, 24, 1);
+            var storageId = await GetStorageIdAsync(tokenToSend);
+            bool isBlind = false;
+            if (redPacketType == RedPacketType.Blind_Box)
+            {
+                isBlind = true;
+            }
+
+            //Calculate eddsa signautre
+            BigInteger[] poseidonInputs =
+        {
+                                    LoopNetUtils.ParseHexUnsigned(_chainId == 1 ? LoopNetConstantsHelper.ProductionExchangeAddress : LoopNetConstantsHelper.TestExchangeAddress),
+                                    (BigInteger) _accountInformation!.AccountId,
+                                    (BigInteger) 0,
+                                    (BigInteger) tokenToSend,
+                                    isBlind ? BigInteger.Parse(amountPerPacket.ToString("0")) * BigInteger.Parse(1000000000000000000m.ToString("0")) : BigInteger.Parse(amountPerPacket.ToString("0")) * BigInteger.Parse(amountOfPackets.ToString("0")) * BigInteger.Parse(1000000000000000000m.ToString("0")),
+                                    (BigInteger) maxFeeTokenId,
+                                    BigInteger.Parse(offchainFee!.Fees![maxFeeTokenId].Fee!),
+                                    LoopNetUtils.ParseHexUnsigned(_chainId == 1 ? "0x9cde4366824d9410fb2e2f885601933a926f40d7" : "0xa3961aae9522f0f66f2406ac6faa2af0a8bfe504"),
+                                    (BigInteger) 0,
+                                    (BigInteger) 0,
+                                    (BigInteger) validUntil30Days,
+                                    (BigInteger) storageId!.OffchainId
+                    };
+            Poseidon poseidon = new Poseidon(13, 6, 53, "poseidon", 5, _securityTarget: 128);
+            BigInteger poseidonHash = poseidon.CalculatePoseidonHash(poseidonInputs);
+            Eddsa eddsa = new Eddsa(poseidonHash, _l2PrivateKey);
+            string eddsaSignature = eddsa.Sign();
+
+            //Calculate ecdsa
+            string primaryTypeName = "Transfer";
+            TypedData eip712TypedData = new TypedData();
+            eip712TypedData.Domain = new Domain()
+            {
+                Name = "Loopring Protocol",
+                Version = "3.6.0",
+                ChainId = _chainId == 1 ? 1 : 5,
+                VerifyingContract = _chainId == 1 ? LoopNetConstantsHelper.ProductionExchangeAddress : LoopNetConstantsHelper.TestExchangeAddress,
+            };
+            eip712TypedData.PrimaryType = primaryTypeName;
+            eip712TypedData.Types = new Dictionary<string, MemberDescription[]>()
+            {
+                ["EIP712Domain"] = new[]
+                    {
+                                            new MemberDescription {Name = "name", Type = "string"},
+                                            new MemberDescription {Name = "version", Type = "string"},
+                                            new MemberDescription {Name = "chainId", Type = "uint256"},
+                                            new MemberDescription {Name = "verifyingContract", Type = "address"},
+                                        },
+                [primaryTypeName] = new[]
+                    {
+                                            new MemberDescription {Name = "from", Type = "address"},            // payerAddr
+                                            new MemberDescription {Name = "to", Type = "address"},              // toAddr
+                                            new MemberDescription {Name = "tokenID", Type = "uint16"},          // token.tokenId 
+                                            new MemberDescription {Name = "amount", Type = "uint96"},           // token.volume 
+                                            new MemberDescription {Name = "feeTokenID", Type = "uint16"},       // maxFee.tokenId
+                                            new MemberDescription {Name = "maxFee", Type = "uint96"},           // maxFee.volume
+                                            new MemberDescription {Name = "validUntil", Type = "uint32"},       // validUntill
+                                            new MemberDescription {Name = "storageID", Type = "uint32"}         // storageId
+                                        },
+
+            };
+            eip712TypedData.Message = new[]
+            {
+                                    new MemberValue {TypeName = "address", Value = _accountInformation.Owner},
+                                    new MemberValue {TypeName = "address", Value = _chainId == 1 ? "0x9cde4366824d9410fb2e2f885601933a926f40d7" : "0xa3961aae9522f0f66f2406ac6faa2af0a8bfe504"},
+                                    new MemberValue {TypeName = "uint16", Value = tokenToSend},
+                                    new MemberValue {TypeName = "uint96", Value = isBlind ? BigInteger.Parse(amountPerPacket.ToString("0")) * BigInteger.Parse(1000000000000000000m.ToString("0")) : BigInteger.Parse(amountPerPacket.ToString("0")) * BigInteger.Parse(amountOfPackets.ToString("0")) * BigInteger.Parse(1000000000000000000m.ToString("0"))},
+                                    new MemberValue {TypeName = "uint16", Value = maxFeeTokenId},
+                                    new MemberValue {TypeName = "uint96", Value = BigInteger.Parse(offchainFee.Fees[maxFeeTokenId].Fee!)},
+                                    new MemberValue {TypeName = "uint32", Value = validUntil30Days},
+                                    new MemberValue {TypeName = "uint32", Value = storageId.OffchainId},
+                                };
+
+            Eip712TypedDataSigner signer = new Eip712TypedDataSigner();
+            var ethECKey = new Nethereum.Signer.EthECKey(_counterFactualWalletInfo == null ? _l1PrivateKey! : _l2PrivateKey!.Replace("0x", ""));
+            var encodedTypedData = signer.EncodeTypedData(eip712TypedData);
+            var ECDRSASignature = ethECKey.SignAndCalculateV(Sha3Keccack.Current.CalculateHash(encodedTypedData));
+            var serializedECDRSASignature = EthECDSASignature.CreateStringSignature(ECDRSASignature);
+            var ecdsaSignature = serializedECDRSASignature + "0" + (int)2;
+
+            //Red packet details
+            RedPacket redPacketNft = new RedPacket();
+            redPacketNft.EcdsaSignature = ecdsaSignature;
+            LuckyToken luckyToken = new LuckyToken();
+            luckyToken.Exchange = _chainId == 1 ? LoopNetConstantsHelper.ProductionExchangeAddress : LoopNetConstantsHelper.TestExchangeAddress;
+            luckyToken.PayerAddr = _accountInformation.Owner;
+            luckyToken.PayerId = _accountInformation.AccountId;
+            luckyToken.PayeeAddr = _chainId == 1 ? "0x9cde4366824d9410fb2e2f885601933a926f40d7" : "0xa3961aae9522f0f66f2406ac6faa2af0a8bfe504";
+            luckyToken.StorageId = storageId.OffchainId;
+            luckyToken.Token = tokenToSend;
+
+            //Red packet details
+            if (redPacketType == RedPacketType.Blind_Box)
+            {
+                luckyToken.Amount = (amountPerPacket * 1000000000000000000m).ToString("0");
+                redPacketNft.GiftNumbers = (giftAmount!.Value * 1000000000000000000m).ToString("0");
+            }
+            else
+            {
+                luckyToken.Amount = (amountPerPacket * amountOfPackets * 1000000000000000000m).ToString("0");
+            }
+            luckyToken.FeeToken = maxFeeTokenId;
+            luckyToken.MaxFeeAmount = offchainFee.Fees[maxFeeTokenId].Fee;
+            luckyToken.ValidUntil = validUntil30Days;
+            luckyToken.PayeeId = 0;
+            luckyToken.Memo = $"LuckTokenSendBy{_accountInformation.AccountId}";
+            luckyToken.EddsaSig = eddsaSignature;
+            redPacketNft.LuckyToken = luckyToken;
+            redPacketNft.Memo = memo;
+            redPacketNft.Numbers = amountOfPackets.ToString("0");
+            redPacketNft.SignerFlag = false;
+            redPacketNft.TemplateId = 0;
+
+            redPacketNft.Type = new LoopNet.Models.Requests.Type()
+            {
+                Partition = (int)redPacketAmountType,
+                Scope = (int)redPacketViewType,
+                Mode = (int)redPacketType
+            };
+
+            redPacketNft.ValidSince = validSince;
+            redPacketNft.ValidUntil = validUntil;
+
+            var request = new RestRequest(LoopNetConstantsHelper.PostRedPacketEndpoint);
+            request.AddHeader("x-api-key", _apiKey!);
+            request.AddHeader("x-api-sig", ecdsaSignature);
+            request.AddHeader("Accept", "application/json");
+            var jObject = JObject.Parse(JsonConvert.SerializeObject(redPacketNft));
+            var jObjectFlattened = jObject.Flatten();
+            var jObjectFlattenedString = JsonConvert.SerializeObject(jObjectFlattened);
+            request.AddParameter("application/json", jObjectFlattenedString, ParameterType.RequestBody);
+            var response = await _loopNetClient!.ExecutePostAsync<RedPacketMintResponse>(request);
+            if (response.IsSuccessful)
+            {
+                return response.Data;
+            }
+            else
+            {
+                throw new Exception($"Error posting red packet mint, HTTP Status Code:{response.StatusCode}, Content:{response.Content}");
+            }
+        }
+
+        /// <inheritdoc/>
+        public async Task<OffchainFeeResponse?> GetOffChainFeeWithAmountAsync(int amount, int requestType, int extraType)
+        {
+            var request = new RestRequest(LoopNetConstantsHelper.GetOffchainFeeApiEndpoint);
+            request.AddHeader("x-api-key", _apiKey!);
+            request.AddParameter("accountId", _accountInformation!.AccountId);
+            request.AddParameter("amount", amount);
+            request.AddParameter("requestType", requestType);
+            request.AddParameter("extraType", extraType);
+            var response = await _loopNetClient!.ExecuteGetAsync<OffchainFeeResponse>(request);
+            if (response.IsSuccessful)
+            {
+                return response.Data;
+            }
+            else
+            {
+                throw new Exception($"Error getting nft offchain fee with amount, HTTP Status Code:{response.StatusCode}, Content:{response.Content}");
             }
         }
     }
