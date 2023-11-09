@@ -1104,5 +1104,34 @@ namespace LoopNet.Services
             }
 
         }
+
+        /// <inheritdoc/>
+        public Task<NftBalanceResponse> GetNftBalance(string nftData)
+        {
+            var request = new RestRequest("/api/v3/user/nft/balances");
+            request.AddHeader("x-api-key", apiKey);
+            request.AddParameter("accountId", accountId);
+            request.AddParameter("nftDatas", nftData);
+            request.AddParameter("metadata", "true");
+        }
+
+        /// <inheritdoc/>
+        public async Task<RedPacketNftMintResponse?> PostNftMintRedPacket(long validSince, long validUntil, NftRedPacketType nftRedPacketType, string nftData, string amountOfNftsPerPacket, string amountOfPackets, string memo, string feeTokenSymbol, string? giftAmount = null)
+        {
+            var feeTokenId = 0;
+            if (feeTokenSymbol != "LRC" && feeTokenSymbol != "ETH")
+            {
+                throw new Exception("LoopNet only works with LRC or ETH!");
+            }
+
+            if (feeTokenSymbol == "LRC")
+            {
+                feeTokenId = 1;
+            }
+
+            var nftBalance = await GetNftTokenIdAsync(nftData);
+        }
+
+ 
     }
 }
