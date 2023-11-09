@@ -10,10 +10,10 @@
     <PackageProjectUrl>https://github.com/fudgebucket27/LoopNet</PackageProjectUrl>
     <RepositoryUrl>https://github.com/fudgebucket27/LoopNet</RepositoryUrl>
     <PackageTags>loopring; loopring sdk;</PackageTags>
-    <PackageReleaseNotes>Support for red packet nft minting and target</PackageReleaseNotes>
+    <PackageReleaseNotes>Support for red packet token minting and target</PackageReleaseNotes>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <AssemblyVersion></AssemblyVersion>
-    <Version>0.0.14</Version>
+    <Version>0.0.15</Version>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
   </PropertyGroup>
 
