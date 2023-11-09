@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
@@ -10,10 +10,10 @@
     <PackageProjectUrl>https://github.com/fudgebucket27/LoopNet</PackageProjectUrl>
     <RepositoryUrl>https://github.com/fudgebucket27/LoopNet</RepositoryUrl>
     <PackageTags>loopring; loopring sdk;</PackageTags>
-    <PackageReleaseNotes>Support for red packet token minting and target</PackageReleaseNotes>
+    <PackageReleaseNotes>Fix issue with keyseed for some wallets</PackageReleaseNotes>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <AssemblyVersion></AssemblyVersion>
-    <Version>0.0.17</Version>
+    <Version>0.0.18</Version>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
   </PropertyGroup>
 
