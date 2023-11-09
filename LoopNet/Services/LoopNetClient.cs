@@ -1107,7 +1107,7 @@ namespace LoopNet.Services
         }
 
         /// <inheritdoc/>
-        public async Task<RedPacketNftMintResponse?> PostNftMintRedPacket(long validSince, long validUntil, NftRedPacketType nftRedPacketType, string nftData, string amountOfNftsPerPacket, string amountOfPackets, string memo, string feeTokenSymbol, string? giftAmount = null)
+        public async Task<RedPacketNftMintResponse?> PostNftMintRedPacket(long validSince, long validUntil, NftRedPacketType nftRedPacketType, NftRedPacketViewType nftRedPacketViewType, NftRedPacketAmountType nftRedPacketAmountType, string nftData, string amountOfNftsPerPacket, string amountOfPackets, string memo, string feeTokenSymbol, string? giftAmount = null)
         {
             var maxFeeTokenId = 0;
             if (feeTokenSymbol != "LRC" && feeTokenSymbol != "ETH")
@@ -1128,7 +1128,7 @@ namespace LoopNet.Services
                 var offchainFee = await GetNftOffChainFeeWithAmount(0, 24, nftBalance.Data[0].TokenAddress!);
                 var storageId = await GetStorageIdAsync(nftBalance.Data[0].TokenId);
                 bool isBlind = false;
-                if (nftRedPacketType == NftRedPacketType.Blind)
+                if (nftRedPacketType == NftRedPacketType.Blind_Box)
                 {
                     isBlind = true;
                 }
@@ -1218,7 +1218,7 @@ namespace LoopNet.Services
                 luckyToken.Token = nftBalance.Data[0].TokenId;
 
                 //Red packet details
-                if (nftRedPacketType == NftRedPacketType.Blind)
+                if (nftRedPacketType == NftRedPacketType.Blind_Box)
                 {
                     luckyToken.Amount = amountOfNftsPerPacket;
                     redPacketNft.GiftNumbers = giftAmount;
@@ -1240,35 +1240,11 @@ namespace LoopNet.Services
                 redPacketNft.SignerFlag = false;
                 redPacketNft.TemplateId = 0;
 
-                //Change type based on packet type
-                var partitionInt = 0;
-                var modeInt = 0;
-                var scopeInt = 0;
-                if (nftRedPacketType == NftRedPacketType.Normal || nftRedPacketType == NftRedPacketType.Lucky)
-                {
-                    modeInt = 1;
-                    scopeInt = 1;
-                    if (nftRedPacketType == NftRedPacketType.Lucky)
-                    {
-                        partitionInt = 0;
-                    }
-                    else if (nftRedPacketType == NftRedPacketType.Normal)
-                    {
-                        partitionInt = 1;
-                    }
-                }
-                else if (nftRedPacketType == NftRedPacketType.Blind)
-                {
-                    partitionInt = 0;
-                    modeInt = 2;
-                    scopeInt = 1;
-                }
-
                 redPacketNft.Type = new LoopNet.Models.Requests.Type()
                 {
-                    partition = partitionInt,
-                    mode = modeInt,
-                    scope = scopeInt
+                    partition = (int)nftRedPacketAmountType,
+                    mode = (int)nftRedPacketViewType,
+                    scope = (int)nftRedPacketType
                 };
 
                 redPacketNft.ValidSince = validSince;

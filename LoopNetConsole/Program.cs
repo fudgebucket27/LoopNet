@@ -46,7 +46,7 @@ var nft = nftBalance.First().Value.NftData;
 var validSince = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
 var validUntil = DateTimeOffset.UtcNow.AddDays(7).ToUnixTimeSeconds();
 
-var redpacketNftMintResponse = await loopNetClient.PostNftMintRedPacket(validSince, validUntil, NftRedPacketType.Normal, nft, "1", "1", "test", "LRC");
+var redpacketNftMintResponse = await loopNetClient.PostNftMintRedPacket(validSince, validUntil, NftRedPacketType.Common, NftRedPacketViewType.PRIVATE, NftRedPacketAmountType.AVERAGE, nft, "1", "1", "test", "LRC");
 Console.WriteLine(JsonConvert.SerializeObject(redpacketNftMintResponse));
 
 ////How to do a simple ERC20 trade ETH -> LRC

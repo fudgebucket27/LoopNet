@@ -234,6 +234,8 @@ namespace LoopNet.Services
         /// <param name="validSince">The date when the red packet can be started to claim. Unix Timestamp in seconds in UTC</param>
         /// <param name="validUntil">The date when the red packet claim ends. Unix Timestamp in seconds in UTC</param>
         /// <param name="nftRedPacketType">The nft red packet type</param>
+        /// <param name="nftRedPacketViewType">The nft red packet view type public, private or exclusive</param>
+        /// <param name="nftRedPacketAmountType">The nft red packet amount distribution type.</param>
         /// <param name="nftData">The nft data</param>
         /// <param name="amountOfNftsPerPacket">Amount of nfts per packets</param>
         /// <param name="amountOfPackets">Amount of packets</param>
@@ -242,7 +244,7 @@ namespace LoopNet.Services
         /// <param name="giftAmount">Amount to gift if blind box nft, optional</param>
         /// <returns>The red packet mint response</returns>
         /// <exception cref="Exception">Thrown when there is an issue with the Loopring API</exception>
-        Task<RedPacketNftMintResponse?> PostNftMintRedPacket(long validSince, long validUntil, NftRedPacketType nftRedPacketType, string nftData, string amountOfNftsPerPacket, string amountOfPackets, string memo, string feeTokenSymbol, string? giftAmount = null);
+        Task<RedPacketNftMintResponse?> PostNftMintRedPacket(long validSince, long validUntil, NftRedPacketType nftRedPacketType, NftRedPacketViewType nftRedPacketViewType, NftRedPacketAmountType nftRedPacketAmountType, string nftData, string amountOfNftsPerPacket, string amountOfPackets, string memo, string feeTokenSymbol, string? giftAmount = null);
 
         /// <summary>
         /// Get nft offchain fee with amount

@@ -165,16 +165,51 @@ namespace LoopNet.Models.Requests
     public enum NftRedPacketType
     {
         /// <summary>
-        /// Normal. Set amount per packet
+        /// Relay amount is sent
         /// </summary>
-        Normal,
+        Relay = 0,
+        /// <summary>
+        /// Normal amount is sent
+        /// </summary>
+        Common = 1,
         /// <summary>
         /// blind, chosen at random to recieve
         /// </summary>
-        Blind,
+        Blind_Box = 2
+     
+    }
+
+    /// <summary>
+    /// Nft red packet amount type
+    /// </summary>
+    public enum NftRedPacketAmountType
+    {
         /// <summary>
-        /// Random amount is given per packet
+        /// Send random amount
         /// </summary>
-        Lucky
+        RANDOM = 0,
+        /// <summary>
+        /// Send average
+        /// </summary>
+        AVERAGE = 1
+    }
+
+    /// <summary>
+    /// Nft red packet view type
+    /// </summary>
+    public enum NftRedPacketViewType
+    {
+        /// <summary>
+        /// Public
+        /// </summary>
+        PUBLIC = 0,
+        /// <summary>
+        /// Private
+        /// </summary>
+        PRIVATE = 1,
+        /// <summary>
+        /// Target
+        /// </summary>
+        TARGET = 2
     }
 }
