@@ -281,12 +281,12 @@ namespace LoopNet.Services
         Task<OffchainFeeResponse?> GetOffChainFeeWithAmountAsync(int amount, int requestType, int extraType);
 
         /// <summary>
-        /// Post nft red packet to a list of addressess
+        /// Post red packet target to a list of addressess
         /// </summary>
         /// <param name="addresses">The list of address to send the nft red packet to</param>
         /// <param name="redPacketHash">The hash of the nft red packet</param>
         /// <param name="notifyType">Notification type, 0 for badge, 1 for push notification</param>
         /// <returns></returns>
-        Task<TransferTokenResponse?> PostNftRedPacketTargetAsync(List<string> addresses, string redPacketHash, int notifyType);
+        Task<TransferTokenResponse?> PostRedPacketTargetAsync(List<string> addresses, string redPacketHash, int notifyType);
     }
 }

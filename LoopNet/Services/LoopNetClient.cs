@@ -1296,7 +1296,7 @@ namespace LoopNet.Services
         }
 
         /// <inheritdoc/>
-        public async Task<TransferTokenResponse?> PostNftRedPacketTargetAsync(List<string> addresses, string nftRedPacketHash, int notifyType)
+        public async Task<TransferTokenResponse?> PostRedPacketTargetAsync(List<string> addresses, string nftRedPacketHash, int notifyType)
         {
             var redPacketNftTarget = new RedPacketTarget();
             redPacketNftTarget.Claimer = addresses;
