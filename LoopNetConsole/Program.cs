@@ -41,14 +41,14 @@ if (string.IsNullOrEmpty(ethAddress))
 
 var loopNetClient = await LoopNetClient.CreateLoopNetClientAsync(5, l1PrivateKey, ethAddress, true);
 
-/////How to mint an Nft Redpacket and send it to the target
+/////How to mint an Nft Redpacket and send it to a list of targets, 1 nft per packet, 2 packets
 //var nftBalance = await loopNetClient.GetNftWalletBalanceAsync();
 //var nft = nftBalance!.First().Value.NftData;
 //var validSince = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
 //var validUntil = DateTimeOffset.UtcNow.AddDays(7).ToUnixTimeSeconds();
-//var redpacketNftMintResponse = await loopNetClient.PostNftMintRedPacketAsync(validSince, validUntil, NftRedPacketType.Common, NftRedPacketViewType.TARGET, NftRedPacketAmountType.AVERAGE, nft!, "1", "1", "test", "LRC");
+//var redpacketNftMintResponse = await loopNetClient.PostNftMintRedPacketAsync(validSince, validUntil, NftRedPacketType.Common, NftRedPacketViewType.TARGET, NftRedPacketAmountType.AVERAGE, nft!, "1", "2", "test", "LRC");
 //Console.WriteLine("Nft red packet minted: " + JsonConvert.SerializeObject(redpacketNftMintResponse, Formatting.Indented));
-//var addressesToTarget = new List<string> {"0x991B6fE54d46e5e0CEEd38911cD4a8694bed386A" };
+//var addressesToTarget = new List<string> { "0x991B6fE54d46e5e0CEEd38911cD4a8694bed386A", "0x37ea02537f3a7a7ffc221125245905be3d5423e6" };
 //var redpacketNftTargetResponse = await loopNetClient.PostNftRedPacketTargetAsync(addressesToTarget, redpacketNftMintResponse.Hash, 0);
 //Console.WriteLine("Nft red packet sent to targets:" + JsonConvert.SerializeObject(redpacketNftTargetResponse, Formatting.Indented));
 
