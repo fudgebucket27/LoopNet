@@ -244,5 +244,14 @@ namespace LoopNet.Services
         /// <exception cref="Exception">Thrown when there is an issue with the Loopring API</exception>
         Task<RedPacketNftMintResponse?> PostNftMintRedPacket(long validSince, long validUntil, NftRedPacketType nftRedPacketType, string nftData, string amountOfNftsPerPacket, string amountOfPackets, string memo, string feeTokenSymbol, string? giftAmount = null);
 
+        /// <summary>
+        /// Get nft offchain fee with amount
+        /// </summary>
+        /// <param name="amount">The amount</param>
+        /// <param name="requestType">The request type</param>
+        /// <param name="tokenAddress">The token address</param>
+        /// <returns>The nft offchain fee with amount</returns>
+        /// <exception cref="Exception">Thrown when there is an issue with the Loopring API</exception>
+        Task<OffchainFeeResponse?> GetNftOffChainFeeWithAmount(int amount, int requestType, string tokenAddress);
     }
 }

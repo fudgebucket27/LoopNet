@@ -1106,19 +1106,9 @@ namespace LoopNet.Services
         }
 
         /// <inheritdoc/>
-        public Task<NftBalanceResponse> GetNftBalance(string nftData)
-        {
-            var request = new RestRequest("/api/v3/user/nft/balances");
-            request.AddHeader("x-api-key", apiKey);
-            request.AddParameter("accountId", accountId);
-            request.AddParameter("nftDatas", nftData);
-            request.AddParameter("metadata", "true");
-        }
-
-        /// <inheritdoc/>
         public async Task<RedPacketNftMintResponse?> PostNftMintRedPacket(long validSince, long validUntil, NftRedPacketType nftRedPacketType, string nftData, string amountOfNftsPerPacket, string amountOfPackets, string memo, string feeTokenSymbol, string? giftAmount = null)
         {
-            var feeTokenId = 0;
+            var maxFeeTokenId = 0;
             if (feeTokenSymbol != "LRC" && feeTokenSymbol != "ETH")
             {
                 throw new Exception("LoopNet only works with LRC or ETH!");
@@ -1126,12 +1116,67 @@ namespace LoopNet.Services
 
             if (feeTokenSymbol == "LRC")
             {
-                feeTokenId = 1;
+                maxFeeTokenId = 1;
             }
 
+            var validUntil30Days = validUntil + (30 * 86400);
             var nftBalance = await GetNftTokenIdAsync(nftData);
+      
+            if (nftBalance != null && nftBalance.Data != null && nftBalance.Data.Count > 0 && nftBalance.Data[0] != null)
+            {
+                var offchainFee = await GetNftOffChainFeeWithAmount(0, 11, nftBalance.Data[0].TokenAddress!);
+                var storageId = await GetStorageIdAsync(nftBalance.Data[0].TokenId);
+                bool isBlind = false;
+                if (nftRedPacketType == NftRedPacketType.Blind)
+                {
+                    isBlind = true;
+                }
+
+                //Calculate eddsa signautre
+                BigInteger[] poseidonInputs =
+        {
+                                    LoopNetUtils.ParseHexUnsigned(_chainId == 1 ? LoopNetConstantsHelper.ProductionExchangeAddress : LoopNetConstantsHelper.TestExchangeAddress),
+                                    (BigInteger) _accountInformation!.AccountId,
+                                    (BigInteger) 0,
+                                    (BigInteger) nftBalance.Data[0].TokenId,
+                                    isBlind ? BigInteger.Parse(amountOfNftsPerPacket) : BigInteger.Parse(amountOfNftsPerPacket) * BigInteger.Parse(amountOfPackets),
+                                    (BigInteger) maxFeeTokenId,
+                                    BigInteger.Parse(offchainFee!.Fees![maxFeeTokenId].Fee!),
+                                    LoopNetUtils.ParseHexUnsigned("0x9cde4366824d9410fb2e2f885601933a926f40d7"),
+                                    (BigInteger) 0,
+                                    (BigInteger) 0,
+                                    (BigInteger) validUntil30Days,
+                                    (BigInteger) storageId!.OffchainId
+                    };
+                Poseidon poseidon = new Poseidon(13, 6, 53, "poseidon", 5, _securityTarget: 128);
+                BigInteger poseidonHash = poseidon.CalculatePoseidonHash(poseidonInputs);
+                Eddsa eddsa = new Eddsa(poseidonHash, _l2PrivateKey);
+                string eddsaSignature = eddsa.Sign();
+            }
+            else
+            {
+                throw new Exception($"You don't hold this NFT in your wallet. Can not create nft red packet!");
+            }
         }
 
- 
+        /// <inheritdoc/>
+        public async Task<OffchainFeeResponse?> GetNftOffChainFeeWithAmount(int amount, int requestType, string tokenAddress)
+        {
+            var request = new RestRequest(LoopNetConstantsHelper.GetOffchainFeeNftApiEndpoint);
+            request.AddHeader("x-api-key", _apiKey!);
+            request.AddParameter("accountId", _accountInformation!.AccountId);
+            request.AddParameter("amount", amount);
+            request.AddParameter("requestType", requestType);
+            request.AddParameter("tokenAddress", tokenAddress);
+            var response = await _loopNetClient!.ExecuteGetAsync<OffchainFeeResponse>(request);
+            if (response.IsSuccessful)
+            {
+                return response.Data;
+            }
+            else
+            {
+                throw new Exception($"Error getting nft offchain fee with amount, HTTP Status Code:{response.StatusCode}, Content:{response.Content}");
+            }
+        }
     }
 }
