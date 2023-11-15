@@ -167,7 +167,7 @@ namespace LoopNet.Services
             _counterFactualWalletInfo = await GetWalletCounterFactualInfoAsync(_accountInformation!.AccountId);
             if (string.IsNullOrEmpty(_accountInformation?.KeySeed))
             {
-                _accountInformation!.KeySeed = $"Sign this message to access Loopring Exchange: {(_chainId == 1 ? LoopNetConstantsHelper.ProductionLoopringApiEndpoint : LoopNetConstantsHelper.TestExchangeAddress)} with key nonce: {_accountInformation.KeyNonce - 1}";
+                _accountInformation!.KeySeed = $"Sign this message to access Loopring Exchange: {(_chainId == 1 ? LoopNetConstantsHelper.ProductionExchangeAddress : LoopNetConstantsHelper.TestExchangeAddress)} with key nonce: {_accountInformation.KeyNonce - 1}";
             }
             var messageToSign = _accountInformation?.KeySeed;
             int accountId = _accountInformation!.AccountId;
