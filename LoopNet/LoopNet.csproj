@@ -10,10 +10,10 @@
     <PackageProjectUrl>https://github.com/fudgebucket27/LoopNet</PackageProjectUrl>
     <RepositoryUrl>https://github.com/fudgebucket27/LoopNet</RepositoryUrl>
     <PackageTags>loopring; loopring sdk;</PackageTags>
-    <PackageReleaseNotes>Support for red packet token minting and target</PackageReleaseNotes>
+    <PackageReleaseNotes>Update to latest version of PoseidonSharp</PackageReleaseNotes>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <AssemblyVersion></AssemblyVersion>
-    <Version>0.0.17</Version>
+    <Version>0.0.19</Version>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
   </PropertyGroup>
 
@@ -22,7 +22,7 @@
     <PackageReference Include="Multiformats.Hash" Version="1.5.0" />
     <PackageReference Include="Nethereum.Signer" Version="4.16.0" />
     <PackageReference Include="Nethereum.Signer.EIP712" Version="4.1.1" />
-    <PackageReference Include="PoseidonSharp" Version="1.0.7" />
+    <PackageReference Include="PoseidonSharp" Version="1.0.10" />
     <PackageReference Include="RestSharp" Version="110.2.0" />
   </ItemGroup>
 
