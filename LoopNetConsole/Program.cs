@@ -39,7 +39,7 @@ if (string.IsNullOrEmpty(ethAddress))
 }
 #endregion
 
-var loopNetClient = await LoopNetClient.CreateLoopNetClientAsync(1, l1PrivateKey, ethAddress, true);
+var loopNetClient = await LoopNetClient.CreateLoopNetClientAsync(5, l1PrivateKey, ethAddress, true);
 
 ///// How to mint an Nft Redpacket and send it to a list of targets, 1 nft per packet, 2 packets
 //var nftBalance = await loopNetClient.GetNftWalletBalanceAsync();
