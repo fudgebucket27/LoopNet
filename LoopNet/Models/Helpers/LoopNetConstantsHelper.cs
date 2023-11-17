@@ -126,6 +126,9 @@ namespace LoopNet.Models.Helpers
         /// </summary>
         public const string PostRedPacketTargetApiEndpoint = "/api/v3/luckyToken/submitAddTarget";
 
-
+        /// <summary>
+        /// The Get Wallet Type Api Endpoint
+        /// </summary>
+        public const string GetWalletTypeApiEndpoint = "/api/wallet/v3/wallet/type";
     }
 }
