@@ -109,6 +109,23 @@ namespace LoopNet.Services
         }
 
         /// <inheritdoc />
+        public async Task<GetNftBurnAddressResponse?> GetNftBurnAddressAsync(int accountId, int tokenId)
+        {
+            var request = new RestRequest(LoopNetConstantsHelper.GetNftBurnAddressApiEndpoint);
+            request.AddParameter("accountId", accountId);
+            request.AddParameter("tokenId", tokenId);
+            var response = await _loopNetClient!.ExecuteGetAsync<GetNftBurnAddressResponse>(request);
+            if (response.IsSuccessful)
+            {
+                return response.Data;
+            }
+            else
+            {
+                throw new Exception($"Error getting nft burn address, HTTP Status Code:{response.StatusCode}, Content:{response.Content}");
+            }
+        }
+
+        /// <inheritdoc />
         public async Task<TickersResponse?> GetTickersAsync(string pairs)
         {
             var request = new RestRequest(LoopNetConstantsHelper.GetTickersApiEndpoint);

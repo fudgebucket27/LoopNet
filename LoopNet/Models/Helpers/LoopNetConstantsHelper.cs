@@ -130,5 +130,10 @@ namespace LoopNet.Models.Helpers
         /// The Get Wallet Type Api Endpoint
         /// </summary>
         public const string GetWalletTypeApiEndpoint = "/api/wallet/v3/wallet/type";
+
+        /// <summary>
+        /// The Get Burn Address Api Endpoint
+        /// </summary>
+        public const string GetNftBurnAddressApiEndpoint = "/api/v3/datacenter/getNftBurnAddress";
     }
 }

@@ -167,6 +167,18 @@ namespace LoopNet.Services
         Task<TransferTokenResponse?> PostNftTransferAsync(string toAddress, string nftData, int amountOfEditionsToTransfer, string feeTokenSymbol, string memo, bool payAccountActivationFee = false);
 
         /// <summary>
+        /// Transfers a nft to the burn address
+        /// </summary>
+        /// <param name="nftData">The nftData in 0x format</param>
+        /// <param name="amountOfEditionsToTransfer">The amount of editions to transfer</param>
+        /// <param name="feeTokenSymbol">The token symbol to pay fees in, ie Only works with ETH or LRC</param>
+        /// <param name="memo">The memo to send,</param>
+        /// <returns>The nft burn reponse</returns>
+        /// <exception cref="Exception">Thrown when there is an issue with the Loopring API, could be due to a number of issues such as storageId, offchainFee or not having enough balance of the transfer token</exception>
+        Task<TransferTokenResponse?> PostNftBurnAsync(string nftData, int amountOfEditionsToTransfer, string feeTokenSymbol, string memo);
+
+
+        /// <summary>
         /// Post the nft mint to the legacy nft factory contract
         /// </summary>
         /// <param name="ipfsMetadataJsonCidv0">The IPFS metadata json in CIDv0 format, ie starts with Qm</param>
@@ -281,6 +293,15 @@ namespace LoopNet.Services
         Task<OffchainFeeResponse?> GetOffChainFeeWithAmountAsync(int amount, int requestType, int extraType);
 
         /// <summary>
+        /// Get nft burn address for a given token id
+        /// </summary>
+        /// <param name="accountId">The account id</param>
+        /// <param name="tokenId">The request type</param>
+        /// <returns>The nft burn address</returns>
+        /// <exception cref="Exception">Thrown when there is an issue with the Loopring API</exception>
+        Task<GetNftBurnAddressResponse?> GetNftBurnAddressAsync(int accountId, int tokenId);
+
+        /// <summary>
         /// Post red packet target to a list of addressess
         /// </summary>
         /// <param name="addresses">The list of address to send the nft red packet to</param>
@@ -288,5 +309,8 @@ namespace LoopNet.Services
         /// <param name="notifyType">Notification type, 0 for badge, 1 for push notification</param>
         /// <returns></returns>
         Task<TransferTokenResponse?> PostRedPacketTargetAsync(List<string> addresses, string redPacketHash, int notifyType);
+    
+
+    
     }
 }

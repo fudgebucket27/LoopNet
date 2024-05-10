@@ -39,7 +39,7 @@ if (string.IsNullOrEmpty(ethAddress))
 }
 #endregion
 
-var loopNetClient = await LoopNetClient.CreateLoopNetClientAsync(5, l1PrivateKey, ethAddress, true);
+var loopNetClient = await LoopNetClient.CreateLoopNetClientAsync(1, l1PrivateKey, ethAddress, true);
 
 ///// How to mint an Nft Redpacket and send it to a list of targets, 1 nft per packet, 2 packets
 //var nftBalance = await loopNetClient.GetNftWalletBalanceAsync();
@@ -88,6 +88,9 @@ var loopNetClient = await LoopNetClient.CreateLoopNetClientAsync(5, l1PrivateKey
 //    var nftHoldersResponse = await loopNetClient.GetNftHoldersAsync(nft.Key);
 //    Console.WriteLine(JsonConvert.SerializeObject(nftHoldersResponse, Formatting.Indented));
 //}
+
+var nftBurnResponse = await loopNetClient.PostNftBurnAsync("0x0c0a0612e7ed5e9fd4f55bb67d006f74cc295cd9b285d37d44843adf5dac4332", 1, "LRC", "NFT burn");
+Console.WriteLine(JsonConvert.SerializeObject(nftBurnResponse, Formatting.Indented));
 
 //var postNftTransferResponse = await loopNetClient.PostNftTransferAsync("0x991B6fE54d46e5e0CEEd38911cD4a8694bed386A", "0x10d1635ee4cda45fb7f7ce588765d17e5a1c8e31d8da1dac609849594fad96d0", 1, "LRC", "goerli nft transfer loopnet");
 //Console.WriteLine(JsonConvert.SerializeObject(postNftTransferResponse, Formatting.Indented));
