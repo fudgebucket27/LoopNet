@@ -58,6 +58,78 @@ var tradeResult = await loopNetClient.PostOrderAsync(
     );
 ```
 
+### Transfer ALL NFTs from one wallet to another
+```csharp
+
+var nftTransferFees = await loopNetClient.GetOffchainFeeNftTransferAsync(19, "0");
+var nftTransferFeeLRC = UnitConversion.Convert.FromWei(BigInteger.Parse(nftTransferFees.Fees.Where(x => x.Token == "LRC").First().Fee), 18);
+Console.WriteLine($"Current NFT transfer fee: {nftTransferFeeLRC} LRC");
+Console.WriteLine("Gathering NFT wallet balance...");
+var nfts = await loopNetClient.GetNftWalletBalanceAsync();
+var totalNftTransferCost = nfts.Count * nftTransferFeeLRC;
+Console.WriteLine($"You have {nfts.Count} NFTS in your wallet");
+Console.WriteLine($"Total NFT transfer cost: {totalNftTransferCost} LRC");
+
+
+string userInput;
+string recipientAddress;
+
+do
+{
+    Console.WriteLine("Enter the Ethereum address to send NFTs to:");
+    recipientAddress = Console.ReadLine()?.Trim();
+
+    if (string.IsNullOrEmpty(recipientAddress) || !AddressUtil.Current.IsValidEthereumAddressHexFormat(recipientAddress))
+    {
+        Console.WriteLine("Invalid Ethereum address. Please try again.");
+    }
+    else
+    {
+        Console.WriteLine($"Recipient address: {recipientAddress}");
+        break;
+    }
+} while (true);
+
+do
+{
+    Console.WriteLine("Transfer all NFTs to the specified wallet? (Y/N)");
+    userInput = Console.ReadLine()?.Trim().ToUpper();
+
+    if (userInput == "Y")
+    {
+        foreach (var nft in nfts)
+        {
+
+            string nftName = string.IsNullOrWhiteSpace(nft.Value.Metadata.Base.Name) ? "Name not available" : nft.Value.Metadata.Base.Name;
+            Console.WriteLine($"Sending {nftName}");
+            try
+            {
+                var nftTransferResponse = await loopNetClient.PostNftTransferAsync(recipientAddress, nft.Value.NftData, Int32.Parse(nft.Value.Total), "LRC", "GG LSW");
+                Console.WriteLine($"Transfer successful!");
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
+        break;
+    }
+    else if (userInput == "N")
+    {
+        Console.WriteLine("Transfer cancelled.");
+        break;
+    }
+    else
+    {
+        Console.WriteLine("Invalid input. Please enter 'Y' or 'N'.");
+    }
+} while (true);
+
+Console.WriteLine("DONE. Any key to exit!");
+Console.ReadKey();
+```
+
+
 ## Building from source
 ### Setup
 Clone this repo and download Visual Studio 2022 with .NET 7, then open the solution file
