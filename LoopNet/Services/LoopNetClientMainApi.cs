@@ -226,7 +226,7 @@ namespace LoopNet.Services
         public async Task<StorageIdResponse?> GetStorageIdAsync(int sellTokenId)
         {
             var request = new RestRequest(LoopNetConstantsHelper.GetStoragIdApiEndpoint);
-            request.AddHeader("X-API-KEY", _apiKey!);
+            //request.AddHeader("X-API-KEY", _apiKey!);
             request.AddParameter("accountId", _accountInformation!.AccountId);
             request.AddParameter("sellTokenId", sellTokenId);
             var response = await _loopNetClient!.ExecuteGetAsync<StorageIdResponse>(request);

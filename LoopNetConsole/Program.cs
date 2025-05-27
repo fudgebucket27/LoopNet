@@ -3,6 +3,7 @@ using LoopNet.Models.Requests;
 using LoopNet.Models.Responses;
 using LoopNet.Services;
 using Microsoft.Extensions.Configuration;
+using Nethereum.Util;
 using Newtonsoft.Json;
 using System.Numerics;
 
@@ -41,74 +42,84 @@ if (string.IsNullOrEmpty(ethAddress))
 
 var loopNetClient = await LoopNetClient.CreateLoopNetClientAsync(1, l1PrivateKey, ethAddress, true);
 
-///// How to mint an Nft Redpacket and send it to a list of targets, 1 nft per packet, 2 packets
-//var nftBalance = await loopNetClient.GetNftWalletBalanceAsync();
-//var nft = nftBalance!.First().Value.NftData;
-//var validSince = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-//var validUntil = DateTimeOffset.UtcNow.AddDays(7).ToUnixTimeSeconds();
-//var redpacketNftMintResponse = await loopNetClient.PostNftMintRedPacketAsync(validSince, validUntil, RedPacketType.Common, RedPacketViewType.TARGET, RedPacketAmountType.AVERAGE, nft!, "1", "2", "test", "LRC");
-//Console.WriteLine("Nft red packet minted: " + JsonConvert.SerializeObject(redpacketNftMintResponse, Formatting.Indented));
-//var addressesToTarget = new List<string> { "0x991B6fE54d46e5e0CEEd38911cD4a8694bed386A", "0x37ea02537f3a7a7ffc221125245905be3d5423e6" };
-//var redpacketNftTargetResponse = await loopNetClient.PostRedPacketTargetAsync(addressesToTarget, redpacketNftMintResponse.Hash, 0);
-//Console.WriteLine("Nft red packet sent to targets:" + JsonConvert.SerializeObject(redpacketNftTargetResponse, Formatting.Indented));
-
-/////How to mint a token Redpacket and send it to a list of targets, 1 lrc per packet, 2 packets
-//var validSince = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-//var validUntil = DateTimeOffset.UtcNow.AddDays(7).ToUnixTimeSeconds();
-//var redpacketMintResponse = await loopNetClient.PostMintRedPacketAsync(validSince, validUntil, RedPacketType.Common, RedPacketViewType.TARGET, RedPacketAmountType.AVERAGE, 1, 1m, 2m, "test token loopnet", "LRC");
-//Console.WriteLine("Token red packet minted: " + JsonConvert.SerializeObject(redpacketMintResponse, Formatting.Indented));
-//var addressesToTarget = new List<string> { "0x991B6fE54d46e5e0CEEd38911cD4a8694bed386A", "0x37ea02537f3a7a7ffc221125245905be3d5423e6" };
-//var redpacketTargetResponse = await loopNetClient.PostRedPacketTargetAsync(addressesToTarget, redpacketMintResponse.Hash, 0);
-//Console.WriteLine("Token red packet sent to targets:" + JsonConvert.SerializeObject(redpacketTargetResponse, Formatting.Indented));
-
-////How to do a simple ERC20 trade ETH -> LRC
-//var tokens = await loopNetClient.GetExchangeTokensAsync();
-//var lrcToken = tokens!.Where(x => x.Symbol == "LRC").First();
-//var ethToken = tokens!.Where(x => x.Symbol == "ETH").First();
-//var ethSellToken = new Token(tokenId: ethToken.TokenId, amount: 0.03852m, decimals: ethToken.Decimals); //0.038252 ETH
-//var lrcBuyToken = new Token(tokenId: lrcToken.TokenId, amount: 368m,  decimals: lrcToken.Decimals); //368 LRC
-//var tradeResult = await loopNetClient.PostOrderAsync(
-//        sellToken: ethSellToken, //the token to sell
-//        buyToken: lrcBuyToken, //the token to buy
-//        allOrNone: false, //if partial fills for order are enabled. only false is supported for now by the Loopring API
-//        fillAmountBOrS: false, //whether to fill by buy or sell token
-//        validUntil: 1800000000, // Unix timestamp for order expiry..
-//        maxFeeBips: 63, //maximum order fee
-//        clientOrderId: null, //arbitrary client set uniqiue order identifier
-//        orderType: OrderType.TAKER_ONLY,
-//        tradeChannel: TradeChannel.MIXED
-//    );
-//Console.WriteLine(JsonConvert.SerializeObject(tradeResult));
-
-
-//var nftBalanceResponse = await loopNetClient.GetNftWalletBalanceAsync(77900);
-//Console.WriteLine($"Nft balance: {nftBalanceResponse!.Count}");
-//foreach(var nft in nftBalanceResponse)
+#region Test
+//try
 //{
-//    var nftHoldersResponse = await loopNetClient.GetNftHoldersAsync(nft.Key);
-//    Console.WriteLine(JsonConvert.SerializeObject(nftHoldersResponse, Formatting.Indented));
+//    var testNftTransferResponse = await loopNetClient.PostNftTransferAsync("0xa2e12f83fca8484c79881f3bc43f7e8d3d08db39", "0x2d6d1c13f9a0e62aa7e1a6e476df7962cc18e48aa3f041f7e3a8a5ae81164f21", 1, "LRC", "GG LSW");
+//    Console.WriteLine($"Transfer successful!");
 //}
+//catch (Exception ex)
+//{
+//    Console.WriteLine(ex.Message);
+//}
+//Console.WriteLine("Test end");
+//Console.ReadKey();
+//System.Environment.Exit(0);
+#endregion
 
-var nftBurnResponse = await loopNetClient.PostNftBurnAsync("0x0c0a0612e7ed5e9fd4f55bb67d006f74cc295cd9b285d37d44843adf5dac4332", 1, "LRC", "NFT burn");
-Console.WriteLine(JsonConvert.SerializeObject(nftBurnResponse, Formatting.Indented));
-
-//var postNftTransferResponse = await loopNetClient.PostNftTransferAsync("0x991B6fE54d46e5e0CEEd38911cD4a8694bed386A", "0x10d1635ee4cda45fb7f7ce588765d17e5a1c8e31d8da1dac609849594fad96d0", 1, "LRC", "goerli nft transfer loopnet");
-//Console.WriteLine(JsonConvert.SerializeObject(postNftTransferResponse, Formatting.Indented));
-
-
-//var nftBalanceResponse = await loopNetClient.GetNftTokenIdAsync("0x2a212b36db36d229d3ee5690c7f9fe0099b53d6f05cfb0349060f4c18012a664");
-//Console.WriteLine(JsonConvert.SerializeObject(nftBalanceResponse, Formatting.Indented));
-
-//var postMintNftResponse = await loopNetClient.PostNftMintAsync("0x218b4566b14cd8a7f8288601dc285b9e18d1785b", "QmZynjR5a3754EFdtpoZz6rzCvDWtz8q3fJMM9uiKAaLW7", 10, 6, "LRC");
-//Console.WriteLine(JsonConvert.SerializeObject(postMintNftResponse, Formatting.Indented));
+var nftTransferFees = await loopNetClient.GetOffchainFeeNftTransferAsync(19, "0");
+var nftTransferFeeLRC = UnitConversion.Convert.FromWei(BigInteger.Parse(nftTransferFees.Fees.Where(x => x.Token == "LRC").First().Fee), 18);
+Console.WriteLine($"Current NFT transfer fee: {nftTransferFeeLRC} LRC");
+Console.WriteLine("Gathering NFT wallet balance...");
+var nfts = await loopNetClient.GetNftWalletBalanceAsync();
+var totalNftTransferCost = nfts.Count * nftTransferFeeLRC;
+Console.WriteLine($"You have {nfts.Count} NFTS in your wallet");
+Console.WriteLine($"Total NFT transfer cost: {totalNftTransferCost} LRC");
 
 
-//var nftCollectionInfo = await loopNetClient.GetNftCollectionInfoAsync("0x0c589fcd20f99a4a1fe031f50079cfc630015184");
-//Console.WriteLine(JsonConvert.SerializeObject(nftCollectionInfo, Formatting.Indented));
+string userInput;
+string recipientAddress;
 
-//var postLegacyNftMintResponse = await loopNetClient.PostLegacyMintNft("QmZynjR5a3754EFdtpoZz6rzCvDWtz8q3fJMM9uiKAaLW7", 10, 6, "LRC");
-////Console.WriteLine(JsonConvert.SerializeObject(postLegacyNftMintResponse, Formatting.Indented));
+do
+{
+    Console.WriteLine("Enter the Ethereum address to send NFTs to:");
+    recipientAddress = Console.ReadLine()?.Trim();
 
-//var tokenTransferResponse = await loopNetClient.PostTokenTransferAsync("0x991B6fE54d46e5e0CEEd38911cD4a8694bed386A", "LRC", 0.01m, "LRC", "LoopNet test");
-//Console.WriteLine(JsonConvert.SerializeObject(tokenTransferResponse, Formatting.Indented));
+    if (string.IsNullOrEmpty(recipientAddress) || !AddressUtil.Current.IsValidEthereumAddressHexFormat(recipientAddress))
+    {
+        Console.WriteLine("Invalid Ethereum address. Please try again.");
+    }
+    else
+    {
+        Console.WriteLine($"Recipient address: {recipientAddress}");
+        break;
+    }
+} while (true);
 
+do
+{
+    Console.WriteLine("Transfer all NFTs to the specified wallet? (Y/N)");
+    userInput = Console.ReadLine()?.Trim().ToUpper();
+
+    if (userInput == "Y")
+    {
+        foreach (var nft in nfts)
+        {
+
+            string nftName = string.IsNullOrWhiteSpace(nft.Value.Metadata.Base.Name) ? "Name not available" : nft.Value.Metadata.Base.Name;
+            Console.WriteLine($"Sending {nftName}");
+            try
+            {
+                var nftTransferResponse = await loopNetClient.PostNftTransferAsync(recipientAddress, nft.Value.NftData, Int32.Parse(nft.Value.Total), "LRC", "GG LSW");
+                Console.WriteLine($"Transfer successful!");
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
+        break;
+    }
+    else if (userInput == "N")
+    {
+        Console.WriteLine("Transfer cancelled.");
+        break;
+    }
+    else
+    {
+        Console.WriteLine("Invalid input. Please enter 'Y' or 'N'.");
+    }
+} while (true);
+
+Console.WriteLine("DONE. Any key to exit!");
+Console.ReadKey();
