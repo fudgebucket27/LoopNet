@@ -26,7 +26,7 @@ var loopNetClient = await LoopNetClient.CreateLoopNetClientAsync(1, "L1 Private 
 ```
 On client creation, it will generate your Loopring Layer 2 Private Key and retrieve your Loopring API Key
 
-### Example usage - Transfer a token
+### Transfer a token
 Once the client has been created you can start using the various methods. Here is a token transfer
 
 ```csharp
@@ -36,7 +36,7 @@ var tokenTransferResponse = await loopNetClient.PostTokenTransferAsync("0x991B6f
 This will send 0.01 LRC to 0x991B6fE54d46e5e0CEEd38911cD4a8694bed386A with the memo 'LoopNet test', fees will be paid in LRC as well.
 
 
-### Example usage - Trade a token
+### Trade a token
 Here is a trade of 0.03852 ETH to 368 LRC
 
 ```csharp
