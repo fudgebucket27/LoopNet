@@ -26,7 +26,7 @@ var loopNetClient = await LoopNetClient.CreateLoopNetClientAsync(1, "L1 Private 
 ```
 On client creation, it will generate your Loopring Layer 2 Private Key and retrieve your Loopring API Key
 
-### Example usage - Transfer a token
+### Transfer a token
 Once the client has been created you can start using the various methods. Here is a token transfer
 
 ```csharp
@@ -36,7 +36,7 @@ var tokenTransferResponse = await loopNetClient.PostTokenTransferAsync("0x991B6f
 This will send 0.01 LRC to 0x991B6fE54d46e5e0CEEd38911cD4a8694bed386A with the memo 'LoopNet test', fees will be paid in LRC as well.
 
 
-### Example usage - Trade a token
+### Trade a token
 Here is a trade of 0.03852 ETH to 368 LRC
 
 ```csharp
@@ -57,6 +57,78 @@ var tradeResult = await loopNetClient.PostOrderAsync(
         tradeChannel: TradeChannel.MIXED
     );
 ```
+
+### Transfer ALL NFTs from one wallet to another
+```csharp
+
+var nftTransferFees = await loopNetClient.GetOffchainFeeNftTransferAsync(19, "0");
+var nftTransferFeeLRC = UnitConversion.Convert.FromWei(BigInteger.Parse(nftTransferFees.Fees.Where(x => x.Token == "LRC").First().Fee), 18);
+Console.WriteLine($"Current NFT transfer fee: {nftTransferFeeLRC} LRC");
+Console.WriteLine("Gathering NFT wallet balance...");
+var nfts = await loopNetClient.GetNftWalletBalanceAsync();
+var totalNftTransferCost = nfts.Count * nftTransferFeeLRC;
+Console.WriteLine($"You have {nfts.Count} NFTS in your wallet");
+Console.WriteLine($"Total NFT transfer cost: {totalNftTransferCost} LRC");
+
+
+string userInput;
+string recipientAddress;
+
+do
+{
+    Console.WriteLine("Enter the Ethereum address to send NFTs to:");
+    recipientAddress = Console.ReadLine()?.Trim();
+
+    if (string.IsNullOrEmpty(recipientAddress) || !AddressUtil.Current.IsValidEthereumAddressHexFormat(recipientAddress))
+    {
+        Console.WriteLine("Invalid Ethereum address. Please try again.");
+    }
+    else
+    {
+        Console.WriteLine($"Recipient address: {recipientAddress}");
+        break;
+    }
+} while (true);
+
+do
+{
+    Console.WriteLine("Transfer all NFTs to the specified wallet? (Y/N)");
+    userInput = Console.ReadLine()?.Trim().ToUpper();
+
+    if (userInput == "Y")
+    {
+        foreach (var nft in nfts)
+        {
+
+            string nftName = string.IsNullOrWhiteSpace(nft.Value.Metadata.Base.Name) ? "Name not available" : nft.Value.Metadata.Base.Name;
+            Console.WriteLine($"Sending {nftName}");
+            try
+            {
+                var nftTransferResponse = await loopNetClient.PostNftTransferAsync(recipientAddress, nft.Value.NftData, Int32.Parse(nft.Value.Total), "LRC", "GG LSW");
+                Console.WriteLine($"Transfer successful!");
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
+        break;
+    }
+    else if (userInput == "N")
+    {
+        Console.WriteLine("Transfer cancelled.");
+        break;
+    }
+    else
+    {
+        Console.WriteLine("Invalid input. Please enter 'Y' or 'N'.");
+    }
+} while (true);
+
+Console.WriteLine("DONE. Any key to exit!");
+Console.ReadKey();
+```
+
 
 ## Building from source
 ### Setup
